@@ -10,6 +10,15 @@ namespace RugbyApiApp
 
         static async Task Main(string[] args)
         {
+            // Configure console for Unicode support
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            Console.InputEncoding = System.Text.Encoding.UTF8;
+
+
+            Console.WriteLine("=====================================\n");
+            Console.WriteLine("=== Rugby API Console Application ===\n");
+            Console.WriteLine("=====================================\n");
+
             Console.OutputEncoding = System.Text.Encoding.UTF8;
 
             Console.WriteLine("=== Rugby API Console Application ===\n");
