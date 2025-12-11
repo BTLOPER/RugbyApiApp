@@ -1,0 +1,39 @@
+﻿# ?? Quick Fix Summary
+
+## The Error
+```
+JSON could not be converted to System.Nullable`1[System.Int32]. 
+Path: $.get
+```
+
+## The Cause
+The `Get` property in `ApiResponse<T>` was defined as `int?` but the API returns it as a `string` containing the endpoint path (e.g., "/seasons").
+
+## The Fix
+**File**: `DTOs/ApiResponse.cs`
+
+```csharp
+// Before (Wrong)
+public int? Get { get; set; }
+
+// After (Correct)
+public string? Get { get; set; }
+```
+
+## Why
+The API response includes metadata:
+```json
+{
+  "get": "/seasons",           // ? String! Not integer
+  "paging": { "current": 1 },
+  "response": [ /* data */ ]
+}
+```
+
+## Result
+? All API calls now work correctly  
+? Seasons fetch successfully  
+? All other endpoints (leagues, teams, matches, players) work too  
+
+## Status
+**FIXED** ? Build successful, ready to use

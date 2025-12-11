@@ -1,0 +1,145 @@
+﻿using RestSharp;
+using RugbyApiApp.DTOs;
+using RugbyApiApp.Models;
+
+namespace RugbyApiApp.Services
+{
+    public class RugbyApiClient
+    {
+        private readonly RestClient _client;
+        private const string BaseUrl = "https://v1.rugby-api-sports.io";
+        private const string CdnHost = "bl-media-api-sports.b-cdn.net";
+
+        public RugbyApiClient(string apiKey)
+        {
+            var options = new RestClientOptions(BaseUrl);
+
+            _client = new RestClient(options);
+            _client.AddDefaultHeader("x-apisports-key", apiKey);
+        }
+
+        /// <summary>
+        /// Get all teams
+        /// </summary>
+        public async Task<List<TeamResponse>?> GetTeamsAsync(int page = 1)
+        {
+            var request = new RestRequest("/teams")
+                .AddParameter("page", page);
+
+            var response = await _client.ExecuteAsync<ApiResponse<TeamResponse>>(request);
+            return response.Data?.Response;
+        }
+
+        /// <summary>
+        /// Get team by ID
+        /// </summary>
+        public async Task<TeamResponse?> GetTeamAsync(int teamId)
+        {
+            var request = new RestRequest($"/teams/{teamId}");
+            var response = await _client.ExecuteAsync<ApiResponse<TeamResponse>>(request);
+            return response.Data?.Response?.FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Get players for a team
+        /// </summary>
+        public async Task<List<PlayerResponse>?> GetTeamPlayersAsync(int teamId, int page = 1)
+        {
+            var request = new RestRequest("/players")
+                .AddParameter("team", teamId)
+                .AddParameter("page", page);
+
+            var response = await _client.ExecuteAsync<ApiResponse<PlayerResponse>>(request);
+            return response.Data?.Response;
+        }
+
+        /// <summary>
+        /// Get all matches
+        /// </summary>
+        public async Task<List<MatchResponse>?> GetMatchesAsync(int page = 1)
+        {
+            var request = new RestRequest("/matches")
+                .AddParameter("page", page);
+
+            var response = await _client.ExecuteAsync<ApiResponse<MatchResponse>>(request);
+            return response.Data?.Response;
+        }
+
+        /// <summary>
+        /// Get matches for a season
+        /// </summary>
+        public async Task<List<MatchResponse>?> GetMatchesBySeasonAsync(int season, int page = 1)
+        {
+            var request = new RestRequest("/matches")
+                .AddParameter("season", season)
+                .AddParameter("page", page);
+
+            var response = await _client.ExecuteAsync<ApiResponse<MatchResponse>>(request);
+            return response.Data?.Response;
+        }
+
+        /// <summary>
+        /// Get matches for a league
+        /// </summary>
+        public async Task<List<MatchResponse>?> GetMatchesByLeagueAsync(int leagueId, int page = 1)
+        {
+            var request = new RestRequest("/matches")
+                .AddParameter("league", leagueId)
+                .AddParameter("page", page);
+
+            var response = await _client.ExecuteAsync<ApiResponse<MatchResponse>>(request);
+            return response.Data?.Response;
+        }
+
+        /// <summary>
+        /// Get all leagues
+        /// </summary>
+        public async Task<List<League>?> GetLeaguesAsync(int page = 1)
+        {
+            var request = new RestRequest("/leagues")
+                .AddParameter("page", page);
+
+            var response = await _client.ExecuteAsync<ApiResponse<LeagueResponse>>(request);
+            return response.Data?.Response?.Select(l => new League
+            {
+                Id = l.Id ?? 0,
+                Name = l.Name,
+                Type = l.Type,
+                Logo = l.Logo,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            }).ToList();
+        }
+
+        /// <summary>
+        /// Convert API image URL to CDN URL
+        /// </summary>
+        public static string ConvertToCdnUrl(string? imageUrl)
+        {
+            if (string.IsNullOrEmpty(imageUrl))
+                return string.Empty;
+
+            // Replace api-sports.io domain with BunnyCDN domain
+            return imageUrl.Replace("api-sports.io", CdnHost);
+        }
+
+        /// <summary>
+        /// Get CDN URL for a resource
+        /// </summary>
+        public static string GetCdnUrl(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+                return string.Empty;
+
+            return $"https://{CdnHost}{path}";
+        }
+    }
+
+    public class LeagueResponse
+    {
+        public int? Id { get; set; }
+        public string? Name { get; set; }
+        public string? Type { get; set; }
+        public string? Logo { get; set; }
+    }
+}

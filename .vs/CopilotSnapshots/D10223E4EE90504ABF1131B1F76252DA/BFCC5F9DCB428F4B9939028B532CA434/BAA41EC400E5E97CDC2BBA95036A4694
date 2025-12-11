@@ -1,0 +1,238 @@
+﻿# Setup Instructions
+
+## Prerequisites
+- Visual Studio 2026 or later
+- .NET 10 SDK
+- api-sports.io account (free or paid)
+- BunnyCDN account (optional, for image hosting)
+
+## Step-by-Step Setup
+
+### 1. Get Your API Key
+
+1. Visit https://api-sports.io/
+2. Click "Get Free API Key"
+3. Create account with your email
+4. Verify your email
+5. Log in to dashboard
+6. Copy your **API Key** from the dashboard
+
+### 2. Set Environment Variable
+
+**For Windows:**
+
+**Option A - Command Prompt:**
+```cmd
+setx RUGBY_API_KEY "paste-your-api-key-here"
+```
+
+**Option B - PowerShell (as Administrator):**
+```powershell
+[Environment]::SetEnvironmentVariable("RUGBY_API_KEY", "paste-your-api-key-here", "User")
+```
+
+**Option C - Manual (GUI):**
+1. Right-click "This PC" ? Properties
+2. Click "Advanced system settings"
+3. Click "Environment Variables"
+4. Click "New" under User variables
+5. Variable name: `RUGBY_API_KEY`
+6. Variable value: `your-api-key-here`
+7. Click OK and restart Visual Studio
+
+**For macOS/Linux:**
+```bash
+export RUGBY_API_KEY="your-api-key-here"
+```
+
+To make it permanent, add to `~/.bashrc` or `~/.zshrc`
+
+### 3. Verify Setup
+
+**Windows:**
+```cmd
+echo %RUGBY_API_KEY%
+```
+
+**macOS/Linux:**
+```bash
+echo $RUGBY_API_KEY
+```
+
+Should display your API key.
+
+### 4. Optional - BunnyCDN Setup
+
+1. Create BunnyCDN account at https://bunnycdn.com/
+2. Create a storage zone
+3. Create a pull-zone pointing to api-sports.io
+4. Get your CDN hostname
+5. Update `Configuration/RugbyApiSettings.cs`:
+   ```csharp
+   private const string CdnHost = "your-bunnycdn-hostname.b-cdn.net";
+   ```
+
+### 5. Build and Run
+
+In Visual Studio:
+1. File ? Open Project/Solution
+2. Navigate to RugbyApiApp.sln
+3. Click Build ? Build Solution
+4. Press F5 to run
+
+OR via command line:
+```bash
+cd RugbyApiApp
+dotnet build
+dotnet run
+```
+
+## First Run
+
+The application will:
+1. Create `rugby.db` SQLite database
+2. Fetch teams from api-sports.io
+3. Fetch 2024 season matches
+4. Store data in database
+5. Display summary
+
+Expected console output:
+```
+=== Rugby API Console Application ===
+
+? Database initialized
+
+Fetching teams from API...
+Retrieved 20 teams
+? Stored teams in database
+
+Fetching matches for season 2024...
+Retrieved 15 matches
+? Stored matches in database
+
+=== Stored Data ===
+
+Teams in database: 20
+  - England (ENG)
+  - France (FRA)
+  - ...
+
+Matches in database: 15
+  - England vs France (FT)
+    Score: 42 - 37
+  ...
+
+=== Application finished ===
+```
+
+## Verify Installation
+
+After first run, check for:
+- ? `rugby.db` file in project directory
+- ? Database contains team data
+- ? Database contains match data
+- ? No errors in console output
+
+You can view the database using:
+- **Visual Studio**: Server Explorer ? Data Connections
+- **Tools**: DB Browser for SQLite (download from https://sqlitebrowser.org/)
+- **Command line**: `sqlite3 rugby.db`
+
+## Configuration Files
+
+### Main Configuration
+`Configuration/RugbyApiSettings.cs`
+- API base URL
+- CDN hostname
+- Connection strings
+- Environment variable names
+
+### Database Context
+`Data/RugbyDbContext.cs`
+- Entity mappings
+- Relationships
+- Database configuration
+
+### API Client
+`Services/RugbyApiClient.cs`
+- Endpoint definitions
+- Authentication setup
+- Response parsing
+
+## Common Tasks
+
+### Run Specific Example Query
+In `Program.cs` Main method, add:
+```csharp
+RugbyQueryExamples.Example_TeamStandings();
+```
+
+### Clear All Data
+```csharp
+await dataService.ClearAllDataAsync();
+```
+
+### Fetch Different Season
+```csharp
+await FetchAndStoreMatchesAsync(apiClient, dataService, 2023);
+```
+
+### Access Database Directly
+```csharp
+using (var context = new RugbyDbContext())
+{
+    var teams = context.Teams.ToList();
+    var matches = context.Matches
+        .Include(m => m.HomeTeam)
+        .Include(m => m.AwayTeam)
+        .ToList();
+}
+```
+
+## Troubleshooting Setup
+
+### "Cannot find RUGBY_API_KEY"
+- Close and reopen Visual Studio
+- Restart command prompt/terminal
+- Verify environment variable is set: `echo %RUGBY_API_KEY%`
+
+### "Connection refused" or "No internet"
+- Check internet connection
+- Check api-sports.io service status
+- Verify firewall allows outbound connections
+
+### "Unauthorized" or "Invalid API Key"
+- Verify API key is correct
+- Check for extra spaces or quotes
+- Re-copy from api-sports.io dashboard
+
+### "Database error"
+- Delete `rugby.db` file
+- Run application again (database auto-creates)
+- Check file permissions in project directory
+
+### ".NET 10 not installed"
+```bash
+dotnet --version
+```
+If not 10.0+, download from https://dotnet.microsoft.com/download
+
+## Support Resources
+
+- **API Documentation**: https://api-sports.io/documentation/rugby/v1
+- **API Status**: https://api-sports.io/
+- **RestSharp Issues**: https://github.com/restsharp/RestSharp
+- **EF Core Help**: https://github.com/dotnet/efcore
+- **BunnyCDN Support**: https://support.bunnycdn.com/
+
+## Next Steps After Setup
+
+1. Review `README.md` for detailed documentation
+2. Check `QUICKSTART.md` for quick examples
+3. Explore `Examples/RugbyQueryExamples.cs` for query samples
+4. Read code comments in Models and Services
+5. Customize for your use case
+
+---
+
+**Setup Complete!** Your application is ready to fetch rugby data.
