@@ -1,0 +1,15 @@
+﻿namespace RugbyApiApp.DTOs
+{
+    public class ApiResponse<T>
+    {
+        public string? Get { get; set; }
+        public ApiPaging? Paging { get; set; }
+        public List<T>? Response { get; set; }
+    }
+
+    public class ApiPaging
+    {
+        public int? Current { get; set; }
+        public int? Total { get; set; }
+    }
+}

@@ -1,0 +1,276 @@
+﻿using RugbyApiApp.Data;
+using RugbyApiApp.Services;
+
+namespace RugbyApiApp
+{
+    internal class Program
+    {
+        static async Task Main(string[] args)
+        {
+            Console.WriteLine("=== Rugby API Console Application ===\n");
+
+            // Initialize database
+            using (var context = new RugbyDbContext())
+            {
+                context.Database.EnsureCreated();
+                Console.WriteLine("✓ Database initialized\n");
+            }
+
+            // Get API key from environment variable
+            string? apiKey = Environment.GetEnvironmentVariable("RUGBY_API_KEY");
+            if (string.IsNullOrEmpty(apiKey))
+            {
+                Console.WriteLine("ERROR: RUGBY_API_KEY environment variable not set.");
+                Console.WriteLine("Please set your api-sports.io API key as an environment variable.");
+                return;
+            }
+
+            var apiClient = new RugbyApiClient(apiKey);
+            var dataService = new DataService(new RugbyDbContext());
+
+            try
+            {
+                // Fetch and store seasons first
+                await FetchAndStoreSeasonsAsync(apiClient, dataService);
+
+                // Fetch and store leagues
+                await FetchAndStoreLeaguesAsync(apiClient, dataService);
+
+                // Get the current season for fetching teams and matches
+                var currentSeason = await dataService.GetCurrentSeasonAsync();
+                if (currentSeason == null)
+                {
+                    Console.WriteLine("⚠ No current season found. Using 2024 as fallback.\n");
+                    currentSeason = await dataService.GetSeasonsAsync().ContinueWith(t => t.Result.FirstOrDefault());
+                }
+
+                if (currentSeason != null && currentSeason.Year.HasValue)
+                {
+                    // Get leagues for filtering
+                    var leagues = await dataService.GetLeaguesAsync();
+                    if (leagues.Count > 0)
+                    {
+                        // Fetch teams and matches for each league
+                        await FetchAndStoreTeamsAndMatchesAsync(apiClient, dataService, currentSeason.Year.Value, leagues);
+                    }
+                    else
+                    {
+                        Console.WriteLine("⚠ No leagues found to fetch teams and matches.\n");
+                    }
+                }
+
+                // Display stored data
+                await DisplayStoredDataAsync(dataService);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ERROR: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Details: {ex.InnerException.Message}");
+                }
+            }
+
+            Console.WriteLine("\n=== Application finished ===");
+        }
+
+        static async Task FetchAndStoreSeasonsAsync(RugbyApiClient apiClient, DataService dataService)
+        {
+            Console.WriteLine("Fetching seasons from API...");
+            try
+            {
+                var seasons = await apiClient.GetSeasonsAsync();
+
+                if (seasons != null && seasons.Count > 0)
+                {
+                    Console.WriteLine($"Retrieved {seasons.Count} seasons");
+
+                    foreach (var seasonResponse in seasons)
+                    {
+                        if (seasonResponse.Id.HasValue && seasonResponse.Year.HasValue)
+                        {
+                            DateTime? startDate = null;
+                            DateTime? endDate = null;
+
+                            if (DateTime.TryParse(seasonResponse.Start, out var start))
+                                startDate = start;
+                            if (DateTime.TryParse(seasonResponse.End, out var end))
+                                endDate = end;
+
+                            await dataService.UpsertSeasonAsync(
+                                seasonResponse.Id.Value,
+                                seasonResponse.Year.Value,
+                                startDate,
+                                endDate,
+                                seasonResponse.Current ?? false
+                            );
+                        }
+                    }
+
+                    Console.WriteLine($"✓ Stored {seasons.Count} seasons in database\n");
+                }
+                else
+                {
+                    Console.WriteLine("⚠ No seasons retrieved from API\n");
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"⚠ Error fetching seasons: {ex.Message}\n");
+            }
+        }
+
+        static async Task FetchAndStoreLeaguesAsync(RugbyApiClient apiClient, DataService dataService)
+        {
+            Console.WriteLine("Fetching leagues from API...");
+            try
+            {
+                var leagues = await apiClient.GetLeaguesAsync(page: 1);
+
+                if (leagues != null && leagues.Count > 0)
+                {
+                    Console.WriteLine($"Retrieved {leagues.Count} leagues");
+
+                    foreach (var leagueResponse in leagues)
+                    {
+                        if (leagueResponse.Id.HasValue && leagueResponse.Name != null)
+                        {
+                            var cdnLogo = RugbyApiClient.ConvertToCdnUrl(leagueResponse.Logo);
+                            var cdnFlag = RugbyApiClient.ConvertToCdnUrl(leagueResponse.Country?.Flag);
+
+                            await dataService.UpsertLeagueAsync(
+                                leagueResponse.Id.Value,
+                                leagueResponse.Name,
+                                leagueResponse.Type,
+                                cdnLogo,
+                                leagueResponse.Country?.Name,
+                                leagueResponse.Country?.Code,
+                                cdnFlag
+                            );
+                        }
+                    }
+
+                    Console.WriteLine($"✓ Stored {leagues.Count} leagues in database\n");
+                }
+                else
+                {
+                    Console.WriteLine("⚠ No leagues retrieved from API\n");
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"⚠ Error fetching leagues: {ex.Message}\n");
+            }
+        }
+
+        static async Task FetchAndStoreTeamsAndMatchesAsync(RugbyApiClient apiClient, DataService dataService, int season, List<Models.League> leagues)
+        {
+            Console.WriteLine($"Fetching teams and matches for season {season}...\n");
+
+            foreach (var league in leagues.Take(3)) // Limit to first 3 leagues to avoid rate limiting
+            {
+                try
+                {
+                    Console.WriteLine($"Processing league: {league.Name}");
+
+                    // Fetch teams for this league and season
+                    var teams = await apiClient.GetTeamsByLeagueAsync(league.Id, season, page: 1);
+                    if (teams != null && teams.Count > 0)
+                    {
+                        Console.WriteLine($"  Retrieved {teams.Count} teams");
+
+                        foreach (var teamResponse in teams)
+                        {
+                            if (teamResponse.Id.HasValue && teamResponse.Name != null)
+                            {
+                                var cdnLogo = RugbyApiClient.ConvertToCdnUrl(teamResponse.Logo);
+                                var cdnFlag = RugbyApiClient.ConvertToCdnUrl(teamResponse.Flag);
+
+                                await dataService.UpsertTeamAsync(
+                                    teamResponse.Id.Value,
+                                    teamResponse.Name,
+                                    teamResponse.Code,
+                                    cdnFlag,
+                                    cdnLogo
+                                );
+                            }
+                        }
+                    }
+
+                    // Fetch matches for this league and season
+                    var matches = await apiClient.GetMatchesByLeagueAndSeasonAsync(league.Id, season, page: 1);
+                    if (matches != null && matches.Count > 0)
+                    {
+                        Console.WriteLine($"  Retrieved {matches.Count} matches");
+
+                        foreach (var matchResponse in matches)
+                        {
+                            if (matchResponse.Id.HasValue &&
+                                matchResponse.Home?.Id.HasValue == true &&
+                                matchResponse.Away?.Id.HasValue == true)
+                            {
+                                await dataService.UpsertMatchAsync(
+                                    matchResponse.Id.Value,
+                                    matchResponse.LeagueId,
+                                    matchResponse.Season,
+                                    matchResponse.Home.Id.Value,
+                                    matchResponse.Away.Id.Value,
+                                    matchResponse.Date,
+                                    matchResponse.Status,
+                                    matchResponse.Venue,
+                                    matchResponse.Score?.Home,
+                                    matchResponse.Score?.Away
+                                );
+                            }
+                        }
+                    }
+
+                    Console.WriteLine();
+                }
+                catch (HttpRequestException ex)
+                {
+                    Console.WriteLine($"  ⚠ Error processing league {league.Name}: {ex.Message}\n");
+                }
+            }
+        }
+
+        static async Task DisplayStoredDataAsync(DataService dataService)
+        {
+            Console.WriteLine("=== Stored Data ===\n");
+
+            var seasons = await dataService.GetSeasonsAsync();
+            Console.WriteLine($"Seasons in database: {seasons.Count}");
+            foreach (var season in seasons.Take(3))
+            {
+                Console.WriteLine($"  - Season {season.Year} ({(season.IsCurrent ? "Current" : "Past")})");
+            }
+
+            var leagues = await dataService.GetLeaguesAsync();
+            Console.WriteLine($"\nLeagues in database: {leagues.Count}");
+            foreach (var league in leagues.Take(5))
+            {
+                Console.WriteLine($"  - {league.Name} ({league.CountryCode})");
+            }
+
+            var teams = await dataService.GetTeamsAsync();
+            Console.WriteLine($"\nTeams in database: {teams.Count}");
+            foreach (var team in teams.Take(5))
+            {
+                Console.WriteLine($"  - {team.Name} ({team.Code})");
+            }
+
+            var matches = await dataService.GetMatchesAsync();
+            Console.WriteLine($"\nMatches in database: {matches.Count}");
+            foreach (var match in matches.Take(5))
+            {
+                var homeTeam = match.HomeTeam?.Name ?? "Unknown";
+                var awayTeam = match.AwayTeam?.Name ?? "Unknown";
+                Console.WriteLine($"  - {homeTeam} vs {awayTeam} ({match.Status})");
+                if (match.HomeTeamScore.HasValue && match.AwayTeamScore.HasValue)
+                {
+                    Console.WriteLine($"    Score: {match.HomeTeamScore} - {match.AwayTeamScore}");
+                }
+            }
+        }
+    }
+}

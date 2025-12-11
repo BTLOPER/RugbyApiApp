@@ -1,0 +1,333 @@
+﻿using RugbyApiApp.Services;
+
+namespace RugbyApiApp.Examples
+{
+    /// <summary>
+    /// Examples demonstrating IsDataComplete tracking and optimization
+    /// </summary>
+    public static class IsDataCompleteExamples
+    {
+        /// <summary>
+        /// Example: Check data completion status
+        /// </summary>
+        public static async Task Example_CheckCompletionStatus(DataService dataService)
+        {
+            Console.WriteLine("\n=== Data Completion Status ===");
+            
+            var stats = await dataService.GetCompletionStatsAsync();
+            Console.WriteLine(stats);
+        }
+
+        /// <summary>
+        /// Example: Get incomplete teams that need player data
+        /// </summary>
+        public static async Task Example_FindIncompleteTeams(DataService dataService)
+        {
+            var incompleteTeams = await dataService.GetIncompleteTeamsAsync();
+
+            Console.WriteLine($"\n=== Teams Missing Player Data ===");
+            Console.WriteLine($"Count: {incompleteTeams.Count}");
+
+            foreach (var team in incompleteTeams.Take(5))
+            {
+                Console.WriteLine($"  - {team.Name} (ID: {team.Id})");
+            }
+        }
+
+        /// <summary>
+        /// Example: Fetch only incomplete seasons
+        /// </summary>
+        public static async Task Example_FetchMissingSeasons(RugbyApiClient apiClient, DataService dataService)
+        {
+            Console.WriteLine("\n=== Fetching Incomplete Seasons ===");
+            
+            var incompleteSeasons = await dataService.GetIncompleteSeasonAsync();
+            
+            if (incompleteSeasons.Count > 0)
+            {
+                Console.WriteLine($"Found {incompleteSeasons.Count} incomplete seasons, fetching from API...");
+                var seasons = await apiClient.GetSeasonsAsync();
+                // Store seasons...
+            }
+            else
+            {
+                Console.WriteLine("? All seasons already fetched, skipping API call");
+            }
+        }
+
+        /// <summary>
+        /// Example: Smart team and player fetching
+        /// </summary>
+        public static async Task Example_SmartPlayerFetching(RugbyApiClient apiClient, DataService dataService)
+        {
+            Console.WriteLine("\n=== Smart Player Data Fetching ===");
+
+            // Step 1: Find teams that need player data
+            var incompleteTeams = await dataService.GetIncompleteTeamsAsync();
+            
+            if (incompleteTeams.Count == 0)
+            {
+                Console.WriteLine("? All teams have complete player data!");
+                return;
+            }
+
+            Console.WriteLine($"Found {incompleteTeams.Count} teams needing player data");
+
+            // Step 2: Fetch players only for incomplete teams
+            int teamsProcessed = 0;
+            foreach (var team in incompleteTeams.Take(5))
+            {
+                try
+                {
+                    Console.WriteLine($"Fetching players for {team.Name}...");
+                    
+                    var players = await apiClient.GetTeamPlayersAsync(team.Id, page: 1);
+                    
+                    if (players != null && players.Count > 0)
+                    {
+                        Console.WriteLine($"  Retrieved {players.Count} players");
+                        
+                        // Step 3: Store players...
+                        // [storage code here]
+                        
+                        // Step 4: Mark team as complete
+                        await dataService.MarkTeamDataCompleteAsync(team.Id);
+                        teamsProcessed++;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"  Error: {ex.Message}");
+                    // Team remains incomplete, will retry next time
+                }
+            }
+
+            Console.WriteLine($"\n? Processed {teamsProcessed} teams");
+        }
+
+        /// <summary>
+        /// Example: Monitor progress with completion stats
+        /// </summary>
+        public static async Task Example_MonitorProgress(DataService dataService)
+        {
+            Console.WriteLine("\n=== Progress Monitoring ===");
+
+            var stats = await dataService.GetCompletionStatsAsync();
+
+            Console.WriteLine($"Seasons:  {stats.CompleteSeasons:D2}/{stats.TotalSeasons:D2} ({stats.SeasonCompletionPercent:F1}%)");
+            Console.WriteLine($"Leagues:  {stats.CompleteLeagues:D2}/{stats.TotalLeagues:D2} ({stats.LeagueCompletionPercent:F1}%)");
+            Console.WriteLine($"Teams:    {stats.CompleteTeams:D2}/{stats.TotalTeams:D2} ({stats.TeamCompletionPercent:F1}%)");
+            Console.WriteLine($"Players:  {stats.CompletePlayers:D3}/{stats.TotalPlayers:D3} ({stats.PlayerCompletionPercent:F1}%)");
+            Console.WriteLine($"Matches:  {stats.CompleteMatches:D3}/{stats.TotalMatches:D3} ({stats.MatchCompletionPercent:F1}%)");
+
+            // Calculate overall progress
+            double totalPercent = (stats.SeasonCompletionPercent + stats.LeagueCompletionPercent + 
+                                  stats.TeamCompletionPercent + stats.PlayerCompletionPercent + 
+                                  stats.MatchCompletionPercent) / 5;
+            Console.WriteLine($"\nOverall Progress: {totalPercent:F1}%");
+        }
+
+        /// <summary>
+        /// Example: Efficient data synchronization pattern
+        /// </summary>
+        public static async Task Example_EfficientSync(RugbyApiClient apiClient, DataService dataService)
+        {
+            Console.WriteLine("\n=== Efficient Synchronization ===");
+
+            // Check what needs updating
+            var stats = await dataService.GetCompletionStatsAsync();
+            Console.WriteLine($"Before sync: {stats.PlayerCompletionPercent:F1}% players complete");
+
+            int apiCallsSaved = 0;
+
+            // Only fetch incomplete seasons
+            var incompleteSeasons = await dataService.GetIncompleteSeasonAsync();
+            if (incompleteSeasons.Count == 0)
+            {
+                apiCallsSaved++;
+                Console.WriteLine("? Skipped seasons API call");
+            }
+
+            // Only fetch incomplete leagues
+            var incompleteLeagues = await dataService.GetIncompleteLeaguesAsync();
+            if (incompleteLeagues.Count == 0)
+            {
+                apiCallsSaved++;
+                Console.WriteLine("? Skipped leagues API call");
+            }
+
+            // Only fetch players for incomplete teams
+            var incompleteTeams = await dataService.GetIncompleteTeamsAsync();
+            int teamApiCalls = incompleteTeams.Count;
+            Console.WriteLine($"Will fetch players for {teamApiCalls} teams");
+
+            // Fetch only incomplete matches
+            var incompleteMatches = await dataService.GetIncompleteMatchesAsync();
+            if (incompleteMatches.Count == 0)
+            {
+                apiCallsSaved++;
+                Console.WriteLine("? Skipped matches API call");
+            }
+
+            Console.WriteLine($"\nAPI calls saved: {apiCallsSaved}");
+            Console.WriteLine($"Estimated API quota saved: {(apiCallsSaved * 100):F0}%");
+        }
+
+        /// <summary>
+        /// Example: Conditional processing based on completion
+        /// </summary>
+        public static async Task Example_ConditionalProcessing(DataService dataService)
+        {
+            Console.WriteLine("\n=== Conditional Processing ===");
+
+            var stats = await dataService.GetCompletionStatsAsync();
+
+            // Process only if seasons are complete
+            if (stats.SeasonCompletionPercent == 100)
+            {
+                Console.WriteLine("? Proceeding with season-dependent operations");
+            }
+            else
+            {
+                Console.WriteLine("? Seasons incomplete, skipping season operations");
+            }
+
+            // Process only if teams are complete
+            if (stats.TeamCompletionPercent == 100)
+            {
+                Console.WriteLine("? All teams available for analysis");
+            }
+            else
+            {
+                Console.WriteLine($"? Only {stats.TeamCompletionPercent:F1}% of teams ready");
+            }
+
+            // Process only if players are complete
+            if (stats.PlayerCompletionPercent == 100)
+            {
+                Console.WriteLine("? Complete roster information available");
+            }
+            else
+            {
+                Console.WriteLine($"? Only {stats.PlayerCompletionPercent:F1}% of players fetched");
+            }
+        }
+
+        /// <summary>
+        /// Example: Calculate API call savings
+        /// </summary>
+        public static async Task Example_CalculateSavings(DataService dataService)
+        {
+            Console.WriteLine("\n=== API Quota Analysis ===");
+
+            var stats = await dataService.GetCompletionStatsAsync();
+
+            int totalDataPoints = stats.TotalSeasons + stats.TotalLeagues + 
+                                 stats.TotalTeams + stats.TotalPlayers + stats.TotalMatches;
+
+            int completeDataPoints = stats.CompleteSeasons + stats.CompleteLeagues + 
+                                    stats.CompleteTeams + stats.CompletePlayers + stats.CompleteMatches;
+
+            int redundantCalls = 0;
+            if (stats.SeasonCompletionPercent == 100) redundantCalls += stats.TotalSeasons;
+            if (stats.LeagueCompletionPercent == 100) redundantCalls += stats.TotalLeagues;
+            if (stats.MatchCompletionPercent == 100) redundantCalls += stats.TotalMatches;
+
+            double percentSavings = (redundantCalls * 100.0) / totalDataPoints;
+
+            Console.WriteLine($"Total data points: {totalDataPoints}");
+            Console.WriteLine($"Complete points: {completeDataPoints}");
+            Console.WriteLine($"Potential API calls saved: {redundantCalls}");
+            Console.WriteLine($"Quota savings on rerun: {percentSavings:F1}%");
+
+            // Estimate monthly savings
+            int monthlyWithoutCache = (redundantCalls * 30);
+            Console.WriteLine($"\nEstimated monthly savings: {monthlyWithoutCache} API calls");
+        }
+
+        /// <summary>
+        /// Example: Identify bottlenecks in data fetching
+        /// </summary>
+        public static async Task Example_IdentifyBottlenecks(DataService dataService)
+        {
+            Console.WriteLine("\n=== Data Fetching Bottlenecks ===");
+
+            var stats = await dataService.GetCompletionStatsAsync();
+
+            // Find the least complete data type
+            var completionRates = new List<(string Name, double Percent)>
+            {
+                ("Seasons", stats.SeasonCompletionPercent),
+                ("Leagues", stats.LeagueCompletionPercent),
+                ("Teams", stats.TeamCompletionPercent),
+                ("Players", stats.PlayerCompletionPercent),
+                ("Matches", stats.MatchCompletionPercent)
+            };
+
+            var incomplete = completionRates.Where(x => x.Percent < 100).OrderBy(x => x.Percent);
+
+            if (incomplete.Count() == 0)
+            {
+                Console.WriteLine("? All data complete!");
+                return;
+            }
+
+            Console.WriteLine("Incomplete data types (priority order):");
+            foreach (var (name, percent) in incomplete)
+            {
+                int remaining = (int)((100 - percent) / 100 * stats.TotalSeasons); // Simplified
+                Console.WriteLine($"  {name}: {percent:F1}% complete (action needed)");
+            }
+        }
+
+        /// <summary>
+        /// Example: Track completion over time
+        /// </summary>
+        public static async Task Example_TrackProgress(DataService dataService)
+        {
+            Console.WriteLine("\n=== Data Completion Timeline ===");
+
+            var stats = await dataService.GetCompletionStatsAsync();
+
+            var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            var completionStr = $"{stats.PlayerCompletionPercent:F1}% players, " +
+                               $"{stats.TeamCompletionPercent:F1}% teams, " +
+                               $"{stats.MatchCompletionPercent:F1}% matches";
+
+            Console.WriteLine($"[{timestamp}] Progress: {completionStr}");
+
+            // Example of what a log would look like:
+            // [2024-01-15 14:30:00] Progress: 50.0% players, 100.0% teams, 100.0% matches
+            // [2024-01-15 14:35:00] Progress: 75.0% players, 100.0% teams, 100.0% matches
+            // [2024-01-15 14:40:00] Progress: 100.0% players, 100.0% teams, 100.0% matches ?
+        }
+
+        /// <summary>
+        /// Example: Validate data integrity using completion flags
+        /// </summary>
+        public static async Task Example_ValidateData(DataService dataService)
+        {
+            Console.WriteLine("\n=== Data Integrity Validation ===");
+
+            var teams = await dataService.GetTeamsAsync();
+            var completeTeams = teams.Count(t => t.IsDataComplete);
+            var incompleteTeams = teams.Count(t => !t.IsDataComplete);
+
+            Console.WriteLine($"Teams: {completeTeams} complete, {incompleteTeams} incomplete");
+
+            if (incompleteTeams > 0)
+            {
+                Console.WriteLine("? Warning: Some teams lack player data");
+                Console.WriteLine("  Recommendation: Run player fetch for incomplete teams");
+            }
+            else
+            {
+                Console.WriteLine("? All teams have complete player data");
+            }
+
+            var players = await dataService.GetTeamsAsync();
+            var completePlayers = players.Count(p => p.IsDataComplete);
+            Console.WriteLine($"Players: {completePlayers} marked complete");
+        }
+    }
+}

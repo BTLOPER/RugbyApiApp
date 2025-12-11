@@ -1,0 +1,1020 @@
+﻿using RugbyApiApp.Data;
+using RugbyApiApp.Services;
+
+namespace RugbyApiApp
+{
+    internal class Program
+    {
+        private static RugbyApiClient _apiClient = null!;
+        private static DataService _dataService = null!;
+
+        static async Task Main(string[] args)
+        {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+            Console.WriteLine("=== Rugby API Console Application ===\n");
+            
+
+            // Initialize database
+            using (var context = new RugbyDbContext())
+            {
+                context.Database.EnsureCreated();
+                Console.WriteLine("? Database initialized\n");
+            }
+
+            // Get API key from environment variable
+            string? apiKey = Environment.GetEnvironmentVariable("RUGBY_API_KEY");
+            if (string.IsNullOrEmpty(apiKey))
+            {
+                Console.WriteLine("ERROR: RUGBY_API_KEY environment variable not set.");
+                Console.WriteLine("Please set your api-sports.io API key as an environment variable.");
+                return;
+            }
+
+            _apiClient = new RugbyApiClient(apiKey);
+            _dataService = new DataService(new RugbyDbContext());
+
+            try
+            {
+                await ShowMainMenuAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ERROR: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Details: {ex.InnerException.Message}");
+                }
+            }
+
+            Console.WriteLine("\n=== Application finished ===");
+        }
+
+        static async Task ShowMainMenuAsync()
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("╔════════════════════════════════════════════╗");
+                Console.WriteLine("║   Rugby API Data Management System         ║");
+                Console.WriteLine("╚════════════════════════════════════════════╝\n");
+
+                // Show data statistics
+                var stats = await _dataService.GetCompletionStatsAsync();
+                Console.WriteLine("📊 Current Data Status:");
+                Console.WriteLine($"  • Countries:  {stats.CompleteCountries:D3}/{stats.TotalCountries:D3} ({stats.CountryCompletionPercent:F1}%)");
+                Console.WriteLine($"  • Seasons:    {stats.CompleteSeasons:D3}/{stats.TotalSeasons:D3} ({stats.SeasonCompletionPercent:F1}%)");
+                Console.WriteLine($"  • Leagues:    {stats.CompleteLeagues:D3}/{stats.TotalLeagues:D3} ({stats.LeagueCompletionPercent:F1}%)");
+                Console.WriteLine($"  • Teams:      {stats.CompleteTeams:D3}/{stats.TotalTeams:D3} ({stats.TeamCompletionPercent:F1}%)");
+                Console.WriteLine($"  • Matches:    {stats.CompleteMatches:D3}/{stats.TotalMatches:D3} ({stats.MatchCompletionPercent:F1}%)\n");
+
+                Console.WriteLine("📋 Main Menu:");
+                Console.WriteLine("  [1] Browse & Fetch Countries");
+                Console.WriteLine("  [2] Browse & Fetch Seasons");
+                Console.WriteLine("  [3] Browse & Fetch Leagues");
+                Console.WriteLine("  [4] Browse & Fetch Teams");
+                Console.WriteLine("  [5] Browse & Fetch Matches");
+                Console.WriteLine("  [6] View All Stored Data");
+                Console.WriteLine("  [7] Auto-Fetch All Incomplete Data");
+                Console.WriteLine("  [8] Clear All Data");
+                Console.WriteLine("  [0] Exit\n");
+
+                Console.Write("Enter your choice (0-8): ");
+                string? choice = Console.ReadLine();
+
+                switch (choice)
+                {
+                    case "1":
+                        await ShowCountriesMenuAsync();
+                        break;
+                    case "2":
+                        await ShowSeasonsMenuAsync();
+                        break;
+                    case "3":
+                        await ShowLeaguesMenuAsync();
+                        break;
+                    case "4":
+                        await ShowTeamsMenuAsync();
+                        break;
+                    case "5":
+                        await ShowMatchesMenuAsync();
+                        break;
+                    case "6":
+                        await DisplayStoredDataAsync(_dataService);
+                        WaitForKeyPress();
+                        break;
+                    case "7":
+                        await AutoFetchAllIncompleteAsync();
+                        WaitForKeyPress();
+                        break;
+                    case "8":
+                        await ClearAllDataAsync();
+                        WaitForKeyPress();
+                        break;
+                    case "0":
+                        return;
+                    default:
+                        Console.WriteLine("Invalid choice. Press any key to continue...");
+                        Console.ReadKey();
+                        break;
+                }
+            }
+        }
+
+        static async Task ShowCountriesMenuAsync()
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("??????????????????????????????????????????????");
+                Console.WriteLine("?         Countries Management               ?");
+                Console.WriteLine("??????????????????????????????????????????????\n");
+
+                var countries = await _dataService.GetCountriesAsync();
+                var incompleteCountries = await _dataService.GetIncompleteCountriesAsync();
+
+                Console.WriteLine($"?? Countries: {countries.Count} total");
+                Console.WriteLine($"   ? Complete: {countries.Count(c => c.IsDataComplete)}");
+                Console.WriteLine($"   ? Incomplete: {incompleteCountries.Count}\n");
+
+                if (countries.Any())
+                {
+                    Console.WriteLine("?? Countries in Database:");
+                    int index = 1;
+                    foreach (var country in countries.Take(10))
+                    {
+                        var status = country.IsDataComplete ? "?" : "?";
+                        Console.WriteLine($"  {status} {country.Name} ({country.Code})");
+                        index++;
+                    }
+                    if (countries.Count > 10)
+                        Console.WriteLine($"  ... and {countries.Count - 10} more");
+                }
+
+                Console.WriteLine("\n?? Menu:");
+                Console.WriteLine("  [1] Fetch Countries from API");
+                Console.WriteLine("  [2] View All Countries (paginated)");
+                Console.WriteLine("  [0] Back to Main Menu\n");
+
+                Console.Write("Enter your choice (0-2): ");
+                string? choice = Console.ReadLine();
+
+                switch (choice)
+                {
+                    case "1":
+                        await FetchAndStoreCountriesAsync();
+                        WaitForKeyPress();
+                        break;
+                    case "2":
+                        await ViewAllCountriesAsync();
+                        break;
+                    case "0":
+                        return;
+                    default:
+                        Console.WriteLine("Invalid choice. Press any key to continue...");
+                        Console.ReadKey();
+                        break;
+                }
+            }
+        }
+
+        static async Task ShowSeasonsMenuAsync()
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("??????????????????????????????????????????????");
+                Console.WriteLine("?         Seasons Management                 ?");
+                Console.WriteLine("??????????????????????????????????????????????\n");
+
+                var seasons = await _dataService.GetSeasonsAsync();
+                var incompleteSeasons = await _dataService.GetIncompleteSeasonAsync();
+
+                Console.WriteLine($"?? Seasons: {seasons.Count} total");
+                Console.WriteLine($"   ? Complete: {seasons.Count(s => s.IsDataComplete)}");
+                Console.WriteLine($"   ? Incomplete: {incompleteSeasons.Count}\n");
+
+                if (seasons.Any())
+                {
+                    Console.WriteLine("?? Seasons in Database:");
+                    foreach (var season in seasons.Take(10))
+                    {
+                        var status = season.IsDataComplete ? "?" : "?";
+                        var current = season.IsCurrent ? " (CURRENT)" : "";
+                        Console.WriteLine($"  {status} Season {season.Year}{current}");
+                    }
+                    if (seasons.Count > 10)
+                        Console.WriteLine($"  ... and {seasons.Count - 10} more");
+                }
+
+                Console.WriteLine("\n?? Menu:");
+                Console.WriteLine("  [1] Fetch Seasons from API");
+                Console.WriteLine("  [2] View All Seasons");
+                Console.WriteLine("  [0] Back to Main Menu\n");
+
+                Console.Write("Enter your choice (0-2): ");
+                string? choice = Console.ReadLine();
+
+                switch (choice)
+                {
+                    case "1":
+                        await FetchAndStoreSeasonAsync();
+                        WaitForKeyPress();
+                        break;
+                    case "2":
+                        await ViewAllSeasonsAsync();
+                        break;
+                    case "0":
+                        return;
+                    default:
+                        Console.WriteLine("Invalid choice. Press any key to continue...");
+                        Console.ReadKey();
+                        break;
+                }
+            }
+        }
+
+        static async Task ShowLeaguesMenuAsync()
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("??????????????????????????????????????????????");
+                Console.WriteLine("?         Leagues Management                 ?");
+                Console.WriteLine("??????????????????????????????????????????????\n");
+
+                var leagues = await _dataService.GetLeaguesAsync();
+                var incompleteLeagues = await _dataService.GetIncompleteLeaguesAsync();
+
+                Console.WriteLine($"?? Leagues: {leagues.Count} total");
+                Console.WriteLine($"   ? Complete: {leagues.Count(l => l.IsDataComplete)}");
+                Console.WriteLine($"   ? Incomplete: {incompleteLeagues.Count}\n");
+
+                if (leagues.Any())
+                {
+                    Console.WriteLine("?? Leagues in Database:");
+                    foreach (var league in leagues.Take(10))
+                    {
+                        var status = league.IsDataComplete ? "?" : "?";
+                        Console.WriteLine($"  {status} {league.Name} ({league.CountryCode})");
+                    }
+                    if (leagues.Count > 10)
+                        Console.WriteLine($"  ... and {leagues.Count - 10} more");
+                }
+
+                Console.WriteLine("\n?? Menu:");
+                Console.WriteLine("  [1] Fetch Leagues from API");
+                Console.WriteLine("  [2] View All Leagues (paginated)");
+                Console.WriteLine("  [0] Back to Main Menu\n");
+
+                Console.Write("Enter your choice (0-2): ");
+                string? choice = Console.ReadLine();
+
+                switch (choice)
+                {
+                    case "1":
+                        await FetchAndStoreLeaguesAsync();
+                        WaitForKeyPress();
+                        break;
+                    case "2":
+                        await ViewAllLeaguesAsync();
+                        break;
+                    case "0":
+                        return;
+                    default:
+                        Console.WriteLine("Invalid choice. Press any key to continue...");
+                        Console.ReadKey();
+                        break;
+                }
+            }
+        }
+
+        static async Task ShowTeamsMenuAsync()
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("??????????????????????????????????????????????");
+                Console.WriteLine("?         Teams Management                   ?");
+                Console.WriteLine("??????????????????????????????????????????????\n");
+
+                var teams = await _dataService.GetTeamsAsync();
+                var incompleteTeams = await _dataService.GetIncompleteTeamsAsync();
+
+                Console.WriteLine($"?? Teams: {teams.Count} total");
+                Console.WriteLine($"   ? Complete: {teams.Count(t => t.IsDataComplete)}");
+                Console.WriteLine($"   ? Incomplete: {incompleteTeams.Count}\n");
+
+                if (incompleteTeams.Any())
+                {
+                    Console.WriteLine("?? Teams Incomplete:");
+                    foreach (var team in incompleteTeams.Take(10))
+                    {
+                        Console.WriteLine($"  • {team.Name} ({team.Code})");
+                    }
+                    if (incompleteTeams.Count > 10)
+                        Console.WriteLine($"  ... and {incompleteTeams.Count - 10} more");
+                    Console.WriteLine();
+                }
+
+                if (teams.Any())
+                {
+                    Console.WriteLine("?? Recent Teams:");
+                    foreach (var team in teams.Take(5))
+                    {
+                        var status = team.IsDataComplete ? "?" : "?";
+                        Console.WriteLine($"  {status} {team.Name} ({team.Code})");
+                    }
+                    if (teams.Count > 5)
+                        Console.WriteLine($"  ... and {teams.Count - 5} more");
+                }
+
+                Console.WriteLine("\n?? Menu:");
+                Console.WriteLine("  [1] Fetch Teams & Matches for League");
+                Console.WriteLine("  [2] View All Teams (paginated)");
+                Console.WriteLine("  [0] Back to Main Menu\n");
+
+                Console.Write("Enter your choice (0-2): ");
+                string? choice = Console.ReadLine();
+
+                switch (choice)
+                {
+                    case "1":
+                        await FetchTeamsAndMatchesInteractiveAsync();
+                        WaitForKeyPress();
+                        break;
+                    case "2":
+                        await ViewAllTeamsAsync();
+                        break;
+                    case "0":
+                        return;
+                    default:
+                        Console.WriteLine("Invalid choice. Press any key to continue...");
+                        Console.ReadKey();
+                        break;
+                }
+            }
+        }
+
+        static async Task ShowMatchesMenuAsync()
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("??????????????????????????????????????????????");
+                Console.WriteLine("?         Matches Management                 ?");
+                Console.WriteLine("??????????????????????????????????????????????\n");
+
+                var matches = await _dataService.GetMatchesAsync();
+                var incompleteMatches = await _dataService.GetIncompleteMatchesAsync();
+
+                Console.WriteLine($"?? Matches: {matches.Count} total");
+                Console.WriteLine($"   ? Complete: {matches.Count(m => m.IsDataComplete)}");
+                Console.WriteLine($"   ? Incomplete: {incompleteMatches.Count}\n");
+
+                if (matches.Any())
+                {
+                    Console.WriteLine("?? Recent Matches:");
+                    foreach (var match in matches.TakeLast(10))
+                    {
+                        var homeTeam = match.HomeTeam?.Name ?? "Unknown";
+                        var awayTeam = match.AwayTeam?.Name ?? "Unknown";
+                        var score = match.HomeTeamScore.HasValue && match.AwayTeamScore.HasValue
+                            ? $" [{match.HomeTeamScore}-{match.AwayTeamScore}]"
+                            : "";
+                        Console.WriteLine($"  • {homeTeam} vs {awayTeam} ({match.Status}){score}");
+                    }
+                }
+
+                Console.WriteLine("\n?? Menu:");
+                Console.WriteLine("  [1] View All Matches (paginated)");
+                Console.WriteLine("  [0] Back to Main Menu\n");
+
+                Console.Write("Enter your choice (0-1): ");
+                string? choice = Console.ReadLine();
+
+                switch (choice)
+                {
+                    case "1":
+                        await ViewAllMatchesAsync();
+                        break;
+                    case "0":
+                        return;
+                    default:
+                        Console.WriteLine("Invalid choice. Press any key to continue...");
+                        Console.ReadKey();
+                        break;
+                }
+            }
+        }
+
+        static async Task FetchTeamsAndMatchesInteractiveAsync()
+        {
+            Console.Clear();
+            Console.WriteLine("??????????????????????????????????????????????");
+            Console.WriteLine("?    Fetch Teams & Matches for League        ?");
+            Console.WriteLine("??????????????????????????????????????????????\n");
+
+            // Step 1: Select Season
+            var seasons = await _dataService.GetSeasonsAsync();
+            if (!seasons.Any())
+            {
+                Console.WriteLine("? No seasons in database. Fetch seasons first.\n");
+                return;
+            }
+
+            Console.WriteLine("Available Seasons:");
+            var seasonList = seasons.OrderByDescending(s => s.Year).ToList();
+            for (int i = 0; i < seasonList.Count; i++)
+            {
+                var season = seasonList[i];
+                var current = season.IsCurrent ? " (CURRENT)" : "";
+                Console.WriteLine($"  [{i + 1}] Season {season.Year}{current}");
+            }
+
+            Console.Write("\nSelect season (or 0 to cancel): ");
+            if (!int.TryParse(Console.ReadLine(), out int seasonChoice) || seasonChoice == 0)
+                return;
+
+            if (seasonChoice < 1 || seasonChoice > seasonList.Count)
+            {
+                Console.WriteLine("Invalid choice.");
+                return;
+            }
+
+            var selectedSeason = seasonList[seasonChoice - 1];
+            if (!selectedSeason.Year.HasValue)
+            {
+                Console.WriteLine("Invalid season.");
+                return;
+            }
+
+            int selectedYear = selectedSeason.Year.Value;
+
+            // Step 2: Select League
+            var leagues = await _dataService.GetLeaguesAsync();
+            if (!leagues.Any())
+            {
+                Console.WriteLine("? No leagues in database. Fetch leagues first.\n");
+                return;
+            }
+
+            Console.WriteLine("\nAvailable Leagues:");
+            var leagueList = leagues.OrderBy(l => l.Name).ToList();
+            for (int i = 0; i < leagueList.Count; i++)
+            {
+                var league = leagueList[i];
+                Console.WriteLine($"  [{i + 1}] {league.Name} ({league.CountryCode})");
+            }
+
+            Console.Write("\nSelect league (or 0 to cancel): ");
+            if (!int.TryParse(Console.ReadLine(), out int leagueChoice) || leagueChoice == 0)
+                return;
+
+            if (leagueChoice < 1 || leagueChoice > leagueList.Count)
+            {
+                Console.WriteLine("Invalid choice.");
+                return;
+            }
+
+            var selectedLeague = leagueList[leagueChoice - 1];
+
+            // Step 3: Fetch teams and matches for the selected league and season
+            await FetchAndStoreTeamsAndMatchesForLeagueAsync(_apiClient, _dataService, selectedYear, selectedLeague);
+        }
+
+        static async Task ViewAllCountriesAsync()
+        {
+            Console.Clear();
+            var countries = await _dataService.GetCountriesAsync();
+            int pageSize = 10;
+            int totalPages = (countries.Count + pageSize - 1) / pageSize;
+            int currentPage = 0;
+
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine($"??????????????????????????????????????????????");
+                Console.WriteLine($"?       Countries (Page {currentPage + 1}/{totalPages})                     ?");
+                Console.WriteLine($"??????????????????????????????????????????????\n");
+
+                var pageItems = countries.Skip(currentPage * pageSize).Take(pageSize).ToList();
+                foreach (var country in pageItems)
+                {
+                    var status = country.IsDataComplete ? "?" : "?";
+                    Console.WriteLine($"  {status} {country.Name,-30} ({country.Code})");
+                }
+
+                Console.WriteLine($"\nShowing {pageItems.Count} of {countries.Count} countries");
+                Console.WriteLine("\n[N] Next | [P] Previous | [0] Back");
+                Console.Write("Enter choice: ");
+                string? choice = Console.ReadLine()?.ToUpper();
+
+                if (choice == "0") break;
+                if (choice == "N" && currentPage < totalPages - 1) currentPage++;
+                if (choice == "P" && currentPage > 0) currentPage--;
+            }
+        }
+
+        static async Task ViewAllSeasonsAsync()
+        {
+            Console.Clear();
+            var seasons = await _dataService.GetSeasonsAsync();
+
+            Console.WriteLine("??????????????????????????????????????????????");
+            Console.WriteLine("?          All Seasons                       ?");
+            Console.WriteLine("??????????????????????????????????????????????\n");
+
+            foreach (var season in seasons)
+            {
+                var status = season.IsDataComplete ? "?" : "?";
+                var current = season.IsCurrent ? " (CURRENT)" : "";
+                var dates = season.StartDate.HasValue && season.EndDate.HasValue
+                    ? $" {season.StartDate:yyyy-MM-dd} to {season.EndDate:yyyy-MM-dd}"
+                    : "";
+                Console.WriteLine($"  {status} Season {season.Year}{current}{dates}");
+            }
+
+            Console.WriteLine("\nPress any key to continue...");
+            Console.ReadKey();
+        }
+
+        static async Task ViewAllLeaguesAsync()
+        {
+            Console.Clear();
+            var leagues = await _dataService.GetLeaguesAsync();
+            int pageSize = 10;
+            int totalPages = (leagues.Count + pageSize - 1) / pageSize;
+            int currentPage = 0;
+
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine($"??????????????????????????????????????????????");
+                Console.WriteLine($"?       Leagues (Page {currentPage + 1}/{totalPages})                      ?");
+                Console.WriteLine($"??????????????????????????????????????????????\n");
+
+                var pageItems = leagues.Skip(currentPage * pageSize).Take(pageSize).ToList();
+                foreach (var league in pageItems)
+                {
+                    var status = league.IsDataComplete ? "?" : "?";
+                    Console.WriteLine($"  {status} {league.Name,-30} ({league.CountryCode})");
+                }
+
+                Console.WriteLine($"\nShowing {pageItems.Count} of {leagues.Count} leagues");
+                Console.WriteLine("\n[N] Next | [P] Previous | [0] Back");
+                Console.Write("Enter choice: ");
+                string? choice = Console.ReadLine()?.ToUpper();
+
+                if (choice == "0") break;
+                if (choice == "N" && currentPage < totalPages - 1) currentPage++;
+                if (choice == "P" && currentPage > 0) currentPage--;
+            }
+        }
+
+        static async Task ViewAllTeamsAsync()
+        {
+            Console.Clear();
+            var teams = await _dataService.GetTeamsAsync();
+            int pageSize = 10;
+            int totalPages = (teams.Count + pageSize - 1) / pageSize;
+            int currentPage = 0;
+
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine($"??????????????????????????????????????????????");
+                Console.WriteLine($"?       Teams (Page {currentPage + 1}/{totalPages})                        ?");
+                Console.WriteLine($"??????????????????????????????????????????????\n");
+
+                var pageItems = teams.Skip(currentPage * pageSize).Take(pageSize).ToList();
+                foreach (var team in pageItems)
+                {
+                    var status = team.IsDataComplete ? "?" : "?";
+                    Console.WriteLine($"  {status} {team.Name,-25} ({team.Code})");
+                }
+
+                Console.WriteLine($"\nShowing {pageItems.Count} of {teams.Count} teams");
+                Console.WriteLine("\n[N] Next | [P] Previous | [0] Back");
+                Console.Write("Enter choice: ");
+                string? choice = Console.ReadLine()?.ToUpper();
+
+                if (choice == "0") break;
+                if (choice == "N" && currentPage < totalPages - 1) currentPage++;
+                if (choice == "P" && currentPage > 0) currentPage--;
+            }
+        }
+
+        static async Task ViewAllMatchesAsync()
+        {
+            Console.Clear();
+            var matches = await _dataService.GetMatchesAsync();
+            int pageSize = 10;
+            int totalPages = (matches.Count + pageSize - 1) / pageSize;
+            int currentPage = 0;
+
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine($"??????????????????????????????????????????????");
+                Console.WriteLine($"?       Matches (Page {currentPage + 1}/{totalPages})                      ?");
+                Console.WriteLine($"??????????????????????????????????????????????\n");
+
+                var pageItems = matches.Skip(currentPage * pageSize).Take(pageSize).ToList();
+                foreach (var match in pageItems)
+                {
+                    var homeTeam = match.HomeTeam?.Name ?? "Unknown";
+                    var awayTeam = match.AwayTeam?.Name ?? "Unknown";
+                    var score = match.HomeTeamScore.HasValue && match.AwayTeamScore.HasValue
+                        ? $" [{match.HomeTeamScore}-{match.AwayTeamScore}]"
+                        : "";
+                    Console.WriteLine($"  {homeTeam,-20} vs {awayTeam,-20} ({match.Status}){score}");
+                }
+
+                Console.WriteLine($"\nShowing {pageItems.Count} of {matches.Count} matches");
+                Console.WriteLine("\n[N] Next | [P] Previous | [0] Back");
+                Console.Write("Enter choice: ");
+                string? choice = Console.ReadLine()?.ToUpper();
+
+                if (choice == "0") break;
+                if (choice == "N" && currentPage < totalPages - 1) currentPage++;
+                if (choice == "P" && currentPage > 0) currentPage--;
+            }
+        }
+
+        static async Task FetchAndStoreCountriesAsync()
+        {
+            Console.WriteLine("Fetching countries from API...");
+            try
+            {
+                var incompleteCountries = await _dataService.GetIncompleteCountriesAsync();
+                if (incompleteCountries.Count > 0)
+                {
+                    Console.WriteLine($"Found {incompleteCountries.Count} incomplete countries, skipping API call\n");
+                    return;
+                }
+
+                var countries = await _apiClient.GetCountriesAsync();
+
+                if (countries != null && countries.Count > 0)
+                {
+                    Console.WriteLine($"Retrieved {countries.Count} countries");
+
+                    foreach (var countryResponse in countries)
+                    {
+                        if (countryResponse.Id.HasValue && countryResponse.Name != null)
+                        {
+                            var cdnFlag = RugbyApiClient.ConvertToCdnUrl(countryResponse.Flag);
+
+                            await _dataService.UpsertCountryAsync(
+                                countryResponse.Id.Value,
+                                countryResponse.Name,
+                                countryResponse.Code,
+                                cdnFlag
+                            );
+                        }
+                    }
+
+                    Console.WriteLine($"? Stored {countries.Count} countries in database\n");
+                }
+                else
+                {
+                    Console.WriteLine("? No countries retrieved from API\n");
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"? Error fetching countries: {ex.Message}\n");
+            }
+        }
+
+        static async Task FetchAndStoreSeasonAsync()
+        {
+            Console.WriteLine("Fetching seasons from API...");
+            try
+            {
+                var incompleteSessions = await _dataService.GetIncompleteSeasonAsync();
+                if (incompleteSessions.Count > 0)
+                {
+                    Console.WriteLine($"Found {incompleteSessions.Count} incomplete seasons, skipping API call\n");
+                    return;
+                }
+
+                var seasonYears = await _apiClient.GetSeasonsAsync();
+
+                if (seasonYears != null && seasonYears.Count > 0)
+                {
+                    Console.WriteLine($"Retrieved {seasonYears.Count} seasons");
+
+                    foreach (var year in seasonYears)
+                    {
+                        await _dataService.UpsertSeasonAsync(
+                            seasonId: year,
+                            year: year,
+                            startDate: null,
+                            endDate: null,
+                            isCurrent: false
+                        );
+                    }
+
+                    Console.WriteLine($"? Stored {seasonYears.Count} seasons in database\n");
+                }
+                else
+                {
+                    Console.WriteLine("? No seasons retrieved from API\n");
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"? Error fetching seasons: {ex.Message}\n");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"? Error processing seasons: {ex.Message}\n");
+            }
+        }
+
+        static async Task FetchAndStoreLeaguesAsync()
+        {
+            Console.WriteLine("Fetching leagues from API...");
+            try
+            {
+                var incompleteLeagues = await _dataService.GetIncompleteLeaguesAsync();
+                if (incompleteLeagues.Count > 0)
+                {
+                    Console.WriteLine($"Found {incompleteLeagues.Count} incomplete leagues, skipping API call\n");
+                    return;
+                }
+
+                var leagues = await _apiClient.GetLeaguesAsync();
+
+                if (leagues != null && leagues.Count > 0)
+                {
+                    Console.WriteLine($"Retrieved {leagues.Count} leagues");
+
+                    foreach (var leagueResponse in leagues)
+                    {
+                        if (leagueResponse.Id.HasValue && leagueResponse.Name != null)
+                        {
+                            var cdnLogo = RugbyApiClient.ConvertToCdnUrl(leagueResponse.Logo);
+                            var cdnFlag = RugbyApiClient.ConvertToCdnUrl(leagueResponse.Country?.Flag);
+
+                            await _dataService.UpsertLeagueAsync(
+                                leagueResponse.Id.Value,
+                                leagueResponse.Name,
+                                leagueResponse.Type,
+                                cdnLogo,
+                                leagueResponse.Country?.Name,
+                                leagueResponse.Country?.Code,
+                                cdnFlag
+                            );
+                        }
+                    }
+
+                    Console.WriteLine($"? Stored {leagues.Count} leagues in database\n");
+                }
+                else
+                {
+                    Console.WriteLine("? No leagues retrieved from API\n");
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"? Error fetching leagues: {ex.Message}\n");
+            }
+        }
+
+        static async Task FetchAndStoreTeamsAndMatchesForLeagueAsync(RugbyApiClient apiClient, DataService dataService, int season, Models.League league)
+        {
+            Console.WriteLine($"Fetching teams and matches for {league.Name} (Season {season})...\n");
+
+            try
+            {
+                // Fetch teams for this league and season
+                var teams = await apiClient.GetTeamsByLeagueAsync(league.Id, season);
+                if (teams != null && teams.Count > 0)
+                {
+                    Console.WriteLine($"Retrieved {teams.Count} teams");
+
+                    foreach (var teamResponse in teams)
+                    {
+                        if (teamResponse.Id.HasValue && teamResponse.Name != null)
+                        {
+                            var cdnLogo = RugbyApiClient.ConvertToCdnUrl(teamResponse.Logo);
+                            var cdnFlag = RugbyApiClient.ConvertToCdnUrl(teamResponse.Flag);
+
+                            await dataService.UpsertTeamAsync(
+                                teamResponse.Id.Value,
+                                teamResponse.Name,
+                                teamResponse.Code,
+                                cdnFlag,
+                                cdnLogo
+                            );
+                        }
+                    }
+
+                    Console.WriteLine($"? Stored {teams.Count} teams");
+                }
+                else
+                {
+                    Console.WriteLine("? No teams retrieved from API");
+                }
+
+                // Fetch matches for this league and season
+                var matches = await apiClient.GetMatchesByLeagueAndSeasonAsync(league.Id, season);
+                if (matches != null && matches.Count > 0)
+                {
+                    Console.WriteLine($"Retrieved {matches.Count} matches");
+
+                    int storedCount = 0;
+                    foreach (var matchResponse in matches)
+                    {
+                        if (matchResponse.Id.HasValue &&
+                            matchResponse.Home?.Id.HasValue == true &&
+                            matchResponse.Away?.Id.HasValue == true)
+                        {
+                            await dataService.UpsertMatchAsync(
+                                matchResponse.Id.Value,
+                                matchResponse.LeagueId,
+                                matchResponse.Season,
+                                matchResponse.Home.Id.Value,
+                                matchResponse.Away.Id.Value,
+                                matchResponse.Date,
+                                matchResponse.Status,
+                                matchResponse.Venue,
+                                matchResponse.Score?.Home,
+                                matchResponse.Score?.Away
+                            );
+                            storedCount++;
+                        }
+                    }
+
+                    Console.WriteLine($"? Stored {storedCount} matches");
+
+                    // Mark all teams for this league as complete (matches are now stored)
+                    var leagueTeams = await dataService.GetTeamsAsync();
+                    foreach (var team in leagueTeams)
+                    {
+                        if (!team.IsDataComplete)
+                        {
+                            await dataService.MarkTeamDataCompleteAsync(team.Id);
+                        }
+                    }
+
+                    Console.WriteLine($"? All teams marked as complete\n");
+                }
+                else
+                {
+                    Console.WriteLine("? No matches retrieved from API\n");
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"? Error fetching data: {ex.Message}\n");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"? Error processing data: {ex.Message}\n");
+            }
+        }
+
+        static async Task DisplayStoredDataAsync(DataService dataService)
+        {
+            Console.WriteLine("=== Stored Data ===\n");
+
+            var seasons = await dataService.GetSeasonsAsync();
+            Console.WriteLine($"Seasons in database: {seasons.Count}");
+            foreach (var season in seasons.Take(3))
+            {
+                Console.WriteLine($"  - Season {season.Year} ({(season.IsCurrent ? "Current" : "Past")})");
+            }
+
+            var countries = await dataService.GetCountriesAsync();
+            Console.WriteLine($"\nCountries in database: {countries.Count}");
+            foreach (var country in countries.Take(5))
+            {
+                var completeness = country.IsDataComplete ? "?" : "?";
+                Console.WriteLine($"  {completeness} {country.Name} ({country.Code})");
+            }
+
+            var leagues = await dataService.GetLeaguesAsync();
+            Console.WriteLine($"\nLeagues in database: {leagues.Count}");
+            foreach (var league in leagues.Take(5))
+            {
+                Console.WriteLine($"  - {league.Name} ({league.CountryCode})");
+            }
+
+            var teams = await dataService.GetTeamsAsync();
+            Console.WriteLine($"\nTeams in database: {teams.Count}");
+            foreach (var team in teams.Take(5))
+            {
+                var completeness = team.IsDataComplete ? "?" : "?";
+                Console.WriteLine($"  {completeness} {team.Name} ({team.Code})");
+            }
+
+            var matches = await dataService.GetMatchesAsync();
+            Console.WriteLine($"\nMatches in database: {matches.Count}");
+            foreach (var match in matches.Take(5))
+            {
+                var homeTeam = match.HomeTeam?.Name ?? "Unknown";
+                var awayTeam = match.AwayTeam?.Name ?? "Unknown";
+                Console.WriteLine($"  - {homeTeam} vs {awayTeam} ({match.Status})");
+                if (match.HomeTeamScore.HasValue && match.AwayTeamScore.HasValue)
+                {
+                    Console.WriteLine($"    Score: {match.HomeTeamScore} - {match.AwayTeamScore}");
+                }
+            }
+
+            var stats = await dataService.GetCompletionStatsAsync();
+            Console.WriteLine(stats);
+        }
+
+        static async Task AutoFetchAllIncompleteAsync()
+        {
+            Console.Clear();
+            Console.WriteLine("??????????????????????????????????????????????");
+            Console.WriteLine("?    Auto-Fetching All Incomplete Data       ?");
+            Console.WriteLine("??????????????????????????????????????????????\n");
+
+            // Fetch countries
+            Console.WriteLine("? Fetching Countries...");
+            await FetchAndStoreCountriesAsync();
+
+            // Fetch seasons
+            Console.WriteLine("? Fetching Seasons...");
+            await FetchAndStoreSeasonAsync();
+
+            // Fetch leagues
+            Console.WriteLine("? Fetching Leagues...");
+            await FetchAndStoreLeaguesAsync();
+
+            // Get current season
+            var currentSeason = await _dataService.GetCurrentSeasonAsync();
+            if (currentSeason == null)
+            {
+                var seasons = await _dataService.GetSeasonsAsync();
+                currentSeason = seasons.FirstOrDefault();
+            }
+
+            // Fetch teams and matches
+            if (currentSeason != null && currentSeason.Year.HasValue)
+            {
+                var leagues = await _dataService.GetLeaguesAsync();
+                if (leagues.Any())
+                {
+                    Console.WriteLine("\n? Selecting League for Teams & Matches...");
+                    Console.WriteLine("Available Leagues:");
+                    var leagueList = leagues.OrderBy(l => l.Name).ToList();
+                    
+                    for (int i = 0; i < leagueList.Count; i++)
+                    {
+                        var league = leagueList[i];
+                        Console.WriteLine($"  [{i + 1}] {league.Name} ({league.CountryCode})");
+                    }
+
+                    Console.Write($"\nSelect league (1-{leagueList.Count}, or 0 to skip): ");
+                    if (int.TryParse(Console.ReadLine(), out int leagueChoice) && leagueChoice > 0 && leagueChoice <= leagueList.Count)
+                    {
+                        var selectedLeague = leagueList[leagueChoice - 1];
+                        Console.WriteLine($"\n? Fetching Teams & Matches for {selectedLeague.Name}...");
+                        await FetchAndStoreTeamsAndMatchesForLeagueAsync(_apiClient, _dataService, currentSeason.Year.Value, selectedLeague);
+                      }
+                      else
+                      {
+                        Console.WriteLine("Skipped league selection.\n");
+                      }
+                }
+            }
+
+            Console.WriteLine("? Auto-fetch complete!");
+        }
+
+        static async Task ClearAllDataAsync()
+        {
+            Console.Clear();
+            Console.WriteLine("??????????????????????????????????????????????");
+            Console.WriteLine("?         Clear All Data                     ?");
+            Console.WriteLine("??????????????????????????????????????????????\n");
+
+            Console.WriteLine("? This will delete ALL data from the database.");
+            Console.Write("Are you sure? (yes/no): ");
+            string? confirm = Console.ReadLine()?.ToLower();
+
+            if (confirm == "yes")
+            {
+                await _dataService.ClearAllDataAsync();
+                Console.WriteLine("? All data cleared successfully.\n");
+            }
+            else
+            {
+                Console.WriteLine("? Clear operation cancelled.\n");
+            }
+        }
+
+        static void WaitForKeyPress()
+        {
+            Console.WriteLine("\nPress any key to continue...");
+            Console.ReadKey();
+        }
+    }
+}

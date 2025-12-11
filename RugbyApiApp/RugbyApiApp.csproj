@@ -5,7 +5,6 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <StartupObject>RugbyApiApp.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +23,10 @@
 
   <ItemGroup>
     <None Include="C:\Users\Brand\source\repos\RugbyApiApp\RugbyApiApp\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Documentatiion\" />
   </ItemGroup>
 
 </Project>

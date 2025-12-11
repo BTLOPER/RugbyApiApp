@@ -1,0 +1,296 @@
+﻿# Quick Reference Guide
+
+## What's New
+
+Your Rugby API app now fetches **Seasons** and **Leagues** first, enabling proper parameterization for teams and matches.
+
+## New Models & Tables
+
+| Model | Table | Purpose |
+|-------|-------|---------|
+| Season | Seasons | Track available seasons and current status |
+| League | Leagues | Store leagues with country information |
+
+## API Client New Methods
+
+```csharp
+// Get all seasons
+var seasons = await apiClient.GetSeasonsAsync();
+
+// Get all leagues
+var leagues = await apiClient.GetLeaguesAsync(page: 1);
+
+// Get teams for league AND season (now required!)
+var teams = await apiClient.GetTeamsByLeagueAsync(leagueId, season, page: 1);
+
+// Get matches for league AND season
+var matches = await apiClient.GetMatchesByLeagueAndSeasonAsync(leagueId, season, page: 1);
+```
+
+## Data Service New Methods
+
+```csharp
+// Get all seasons
+var seasons = await dataService.GetSeasonsAsync();
+
+// Get current season
+var currentSeason = await dataService.GetCurrentSeasonAsync();
+
+// Get all leagues
+var leagues = await dataService.GetLeaguesAsync();
+
+// Get matches by league and season
+var matches = await dataService.GetMatchesByLeagueAndSeasonAsync(leagueId, season);
+
+// Store season
+await dataService.UpsertSeasonAsync(id, year, startDate, endDate, isCurrent);
+
+// Store league with country
+await dataService.UpsertLeagueAsync(id, name, type, logo, countryName, countryCode, countryFlag);
+```
+
+## Common Queries
+
+### Get All Seasons
+```csharp
+var seasons = await dataService.GetSeasonsAsync();
+// Result: List ordered by year (newest first)
+```
+
+### Get Current Season
+```csharp
+var currentSeason = await dataService.GetCurrentSeasonAsync();
+// Result: Single season with IsCurrent = true
+```
+
+### Get All Leagues
+```csharp
+var leagues = await dataService.GetLeaguesAsync();
+// Result: List ordered by name, includes country info
+```
+
+### Get Teams for Current Season
+```csharp
+var currentSeason = await dataService.GetCurrentSeasonAsync();
+var leagues = await dataService.GetLeaguesAsync();
+
+foreach (var league in leagues.Take(3))
+{
+    var teams = await apiClient.GetTeamsByLeagueAsync(
+        league.Id, 
+        currentSeason.Year.Value
+    );
+}
+```
+
+### Get Matches for League & Season
+```csharp
+var matches = await dataService.GetMatchesByLeagueAndSeasonAsync(
+    leagueId: 1, 
+    season: 2024
+);
+// Result: List of matches for that league/season
+```
+
+### Filter Leagues by Country
+```csharp
+var leagues = await dataService.GetLeaguesAsync();
+var englandLeagues = leagues.Where(l => l.CountryCode == "GB").ToList();
+```
+
+## Database Queries
+
+### All Seasons
+```sql
+SELECT * FROM Seasons ORDER BY Year DESC;
+```
+
+### Current Season
+```sql
+SELECT * FROM Seasons WHERE IsCurrent = 1;
+```
+
+### All Leagues
+```sql
+SELECT * FROM Leagues ORDER BY Name;
+```
+
+### Leagues by Country
+```sql
+SELECT * FROM Leagues WHERE CountryCode = 'GB';
+```
+
+### Matches by League and Season
+```sql
+SELECT * FROM Matches 
+WHERE LeagueId = 1 AND Season = 2024 
+ORDER BY Date;
+```
+
+## Application Startup Flow
+
+```
+1. Database initialized ?
+2. Fetch seasons ? Store
+3. Fetch leagues ? Store with country info
+4. Get current season year
+5. For each league (first 3):
+   - Fetch teams by league+season
+   - Fetch matches by league+season
+6. Display summary statistics
+```
+
+## File Structure
+
+```
+RugbyApiApp/
+??? Models/
+?   ??? Season.cs (NEW)
+?   ??? League.cs (UPDATED)
+?   ??? Team.cs
+?   ??? Player.cs
+?   ??? Match.cs
+??? DTOs/
+?   ??? SeasonResponse.cs (NEW)
+?   ??? LeagueResponse.cs (NEW with Country)
+?   ??? TeamResponse.cs
+?   ??? PlayerResponse.cs
+?   ??? MatchResponse.cs
+?   ??? ApiResponse.cs
+??? Services/
+?   ??? RugbyApiClient.cs (UPDATED)
+?   ??? DataService.cs (UPDATED)
+??? Data/
+?   ??? RugbyDbContext.cs (UPDATED)
+??? Examples/
+?   ??? RugbyQueryExamples.cs
+?   ??? SeasonsAndLeaguesExamples.cs (NEW)
+??? Program.cs (UPDATED)
+```
+
+## Key Properties
+
+### Season Model
+- `Id` - Unique identifier
+- `Year` - Season year (2024, 2023, etc.)
+- `StartDate` - Season start
+- `EndDate` - Season end
+- `IsCurrent` - Active season flag
+
+### League Model (Updated)
+- `Id` - Unique identifier
+- `Name` - League name
+- `Type` - League type
+- `Logo` - Logo URL (CDN)
+- `CountryName` - Country name (NEW)
+- `CountryCode` - Country code (NEW)
+- `CountryFlag` - Country flag URL (NEW)
+
+## Example Scenarios
+
+### Scenario 1: Get current season's matches
+```csharp
+var season = await dataService.GetCurrentSeasonAsync();
+var leagues = await dataService.GetLeaguesAsync();
+
+foreach (var league in leagues)
+{
+    var matches = await dataService.GetMatchesByLeagueAndSeasonAsync(
+        league.Id, 
+        season.Year.Value
+    );
+    Console.WriteLine($"{league.Name}: {matches.Count} matches");
+}
+```
+
+### Scenario 2: Find leagues by country
+```csharp
+var leagues = await dataService.GetLeaguesAsync();
+var france = leagues.First(l => l.CountryCode == "FR");
+Console.WriteLine(france.Name); // Output: Top 14, etc.
+```
+
+### Scenario 3: Get season progress
+```csharp
+var season = await dataService.GetCurrentSeasonAsync();
+var elapsed = DateTime.Now - season.StartDate;
+var total = season.EndDate - season.StartDate;
+var percent = (elapsed.Value.TotalDays / total.Value.TotalDays) * 100;
+Console.WriteLine($"Season {percent:F1}% complete");
+```
+
+## Environment Setup
+
+```bash
+# Set API key
+setx RUGBY_API_KEY "your-key-here"
+
+# Run application
+dotnet run
+
+# View database
+sqlite3 rugby.db
+```
+
+## API Rate Limiting
+
+Current implementation:
+- Fetches ALL seasons ?
+- Fetches ALL leagues ?
+- Fetches teams/matches for first 3 leagues (to avoid rate limit)
+
+To change, edit `Program.cs`:
+```csharp
+// Change this line:
+foreach (var league in leagues.Take(3))
+
+// To fetch all:
+foreach (var league in leagues)
+```
+
+## Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| No seasons found | Check API key validity |
+| No leagues found | Verify API endpoint works |
+| Teams empty | Ensure season/league IDs are correct |
+| Rate limit hit | Reduce number of leagues fetched |
+| Build error | Run `dotnet build` to check dependencies |
+
+## Documentation Files
+
+- `SEASONS_LEAGUES_GUIDE.md` - Technical details
+- `SEASONS_AND_LEAGUES_COMPLETE.md` - Full implementation guide
+- `IMPLEMENTATION_CHECKLIST.md` - What was done
+- `Examples/SeasonsAndLeaguesExamples.cs` - 12+ examples
+
+## Build & Run
+
+```bash
+# Build
+dotnet build
+
+# Run
+dotnet run
+
+# Output:
+# === Rugby API Console Application ===
+# ? Database initialized
+# Fetching seasons from API...
+# Retrieved X seasons
+# ? Stored X seasons in database
+# ... etc
+```
+
+## Status
+
+? All features implemented  
+? Database schema ready  
+? Example queries available  
+? Documentation complete  
+? Builds successfully  
+
+---
+
+**Ready to Use!** Start running `dotnet run` to fetch rugby data with proper parameters.

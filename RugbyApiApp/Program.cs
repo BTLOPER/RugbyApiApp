@@ -19,6 +19,10 @@ namespace RugbyApiApp
             Console.WriteLine("=== Rugby API Console Application ===\n");
             Console.WriteLine("=====================================\n");
 
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+            Console.WriteLine("=== Rugby API Console Application ===\n");
+            
 
             // Initialize database
             using (var context = new RugbyDbContext())
