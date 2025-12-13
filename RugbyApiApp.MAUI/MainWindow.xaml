@@ -181,9 +181,9 @@
             </Border>
 
             <!-- Content -->
-            <TabControl Background="{StaticResource BackgroundBrush}" BorderThickness="0">
+            <TabControl Background="{StaticResource BackgroundBrush}" BorderThickness="0" x:Name="TabControl">
                 <!-- Home Tab -->
-                <TabItem Header="📊 Home" Style="{StaticResource ModernTabItem}">
+                <TabItem Header="📊 Home" Style="{StaticResource ModernTabItem}" x:Name="HomeTab">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
                         <StackPanel>
                             <!-- Welcome Section -->
@@ -274,7 +274,7 @@
                 </TabItem>
 
                 <!-- Data Tab -->
-                <TabItem Header="📋 Data" Style="{StaticResource ModernTabItem}">
+                <TabItem Header="📋 Data" Style="{StaticResource ModernTabItem}" x:Name="DataTab">
                     <Grid Margin="24">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -298,7 +298,7 @@
                 </TabItem>
 
                 <!-- Settings Tab -->
-                <TabItem Header="⚙️ Settings" Style="{StaticResource ModernTabItem}">
+                <TabItem Header="⚙️ Settings" Style="{StaticResource ModernTabItem}" x:Name="SettingsTab">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
                         <StackPanel MaxWidth="600">
                             <TextBlock Text="Settings" Style="{StaticResource SubHeadingStyle}" Margin="0,0,0,24"/>
