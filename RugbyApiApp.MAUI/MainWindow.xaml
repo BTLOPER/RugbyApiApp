@@ -1,0 +1,335 @@
+<Window x:Class="RugbyApiApp.MAUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Rugby API Manager" Height="700" Width="1000"
+        WindowStartupLocation="CenterScreen"
+        Background="#F5F5F5"
+        FontFamily="Segoe UI"
+        FontSize="12">
+    
+    <Window.Resources>
+        <!-- Colors -->
+        <Color x:Key="PrimaryColor">#512BD4</Color>
+        <Color x:Key="PrimaryDarkColor">#3D1F8A</Color>
+        <Color x:Key="SecondaryColor">#DFD8F7</Color>
+        <Color x:Key="AccentColor">#00B4D8</Color>
+        <Color x:Key="SuccessColor">#22C55E</Color>
+        <Color x:Key="DangerColor">#EF4444</Color>
+        <Color x:Key="BackgroundColor">#F5F5F5</Color>
+        <Color x:Key="SurfaceColor">#FFFFFF</Color>
+        <Color x:Key="TextColor">#1F1F1F</Color>
+        <Color x:Key="TextSecondaryColor">#757575</Color>
+        <Color x:Key="BorderColor">#E0E0E0</Color>
+
+        <!-- Brushes -->
+        <SolidColorBrush x:Key="PrimaryBrush" Color="#512BD4"/>
+        <SolidColorBrush x:Key="PrimaryDarkBrush" Color="#3D1F8A"/>
+        <SolidColorBrush x:Key="SecondaryBrush" Color="#DFD8F7"/>
+        <SolidColorBrush x:Key="AccentBrush" Color="#00B4D8"/>
+        <SolidColorBrush x:Key="SuccessBrush" Color="#22C55E"/>
+        <SolidColorBrush x:Key="DangerBrush" Color="#EF4444"/>
+        <SolidColorBrush x:Key="BackgroundBrush" Color="#F5F5F5"/>
+        <SolidColorBrush x:Key="SurfaceBrush" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="TextBrush" Color="#1F1F1F"/>
+        <SolidColorBrush x:Key="TextSecondaryBrush" Color="#757575"/>
+        <SolidColorBrush x:Key="BorderBrush" Color="#E0E0E0"/>
+
+        <!-- Button Styles -->
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{StaticResource PrimaryDarkBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+            <Setter Property="Background" Value="{StaticResource SecondaryBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        </Style>
+
+        <Style x:Key="DangerButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+            <Setter Property="Background" Value="{StaticResource DangerBrush}"/>
+        </Style>
+
+        <!-- TextBlock Styles -->
+        <Style x:Key="HeadingStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="28"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        </Style>
+
+        <Style x:Key="SubHeadingStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        </Style>
+
+        <Style x:Key="TitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        </Style>
+
+        <Style x:Key="BodyStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <!-- TabItem Style -->
+        <Style x:Key="ModernTabItem" TargetType="TabItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0,0,0,3"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="20,12"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Grid>
+                            <Border Name="Border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                                <ContentPresenter ContentSource="Header" Margin="{TemplateBinding Padding}" HorizontalAlignment="Center"/>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                                <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+                                <Setter TargetName="Border" Property="Background" Value="{StaticResource SecondaryBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ComboBox Style -->
+        <Style x:Key="ModernComboBox" TargetType="ComboBox">
+            <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        </Style>
+
+        <!-- DataGrid Style -->
+        <Style x:Key="ModernDataGrid" TargetType="DataGrid">
+            <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="RowBackground" Value="{StaticResource SurfaceBrush}"/>
+            <Setter Property="AlternatingRowBackground" Value="#FAFAFA"/>
+        </Style>
+
+        <!-- GroupBox Style -->
+        <Style x:Key="ModernGroupBox" TargetType="GroupBox">
+            <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        </Style>
+
+        <!-- PasswordBox Style -->
+        <Style x:Key="ModernPasswordBox" TargetType="PasswordBox">
+            <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Background="{StaticResource BackgroundBrush}">
+        <DockPanel>
+            <!-- Header -->
+            <Border DockPanel.Dock="Top" Background="{StaticResource PrimaryBrush}" Padding="24,16">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="🏉" FontSize="28" Margin="0,0,12,0"/>
+                    <TextBlock Text="Rugby API Manager" Style="{StaticResource SubHeadingStyle}" Foreground="White" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Content -->
+            <TabControl Background="{StaticResource BackgroundBrush}" BorderThickness="0">
+                <!-- Home Tab -->
+                <TabItem Header="📊 Home" Style="{StaticResource ModernTabItem}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
+                        <StackPanel>
+                            <!-- Welcome Section -->
+                            <TextBlock Text="Rugby Data Dashboard" Style="{StaticResource HeadingStyle}" Margin="0,0,0,8"/>
+                            <TextBlock Text="Real-time statistics of your rugby database" Style="{StaticResource BodyStyle}" Margin="0,0,0,32"/>
+
+                            <!-- Data Overview Grid -->
+                            <Grid Margin="0,0,0,24">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Countries Card -->
+                                <Border Grid.Row="0" Grid.Column="0" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,0,12,12">
+                                    <StackPanel>
+                                        <TextBlock Text="🌍 Countries" Style="{StaticResource SubHeadingStyle}" Margin="0,0,0,12"/>
+                                        <TextBlock x:Name="CountriesCount" Text="0 / 0" FontSize="24" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}" Margin="0,0,0,8"/>
+                                        <ProgressBar x:Name="CountriesProgress" Height="8" Background="#E8E8E8" Foreground="{StaticResource PrimaryBrush}" Margin="0,0,0,8"/>
+                                        <TextBlock x:Name="CountriesPercent" Text="0% Complete" Style="{StaticResource BodyStyle}"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Seasons Card -->
+                                <Border Grid.Row="0" Grid.Column="1" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="20" Margin="12,0,0,12">
+                                    <StackPanel>
+                                        <TextBlock Text="📅 Seasons" Style="{StaticResource SubHeadingStyle}" Margin="0,0,0,12"/>
+                                        <TextBlock x:Name="SeasonsCount" Text="0 / 0" FontSize="24" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,8"/>
+                                        <ProgressBar x:Name="SeasonsProgress" Height="8" Background="#E8E8E8" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,8"/>
+                                        <TextBlock x:Name="SeasonsPercent" Text="0% Complete" Style="{StaticResource BodyStyle}"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Leagues Card -->
+                                <Border Grid.Row="1" Grid.Column="0" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,12,12,12">
+                                    <StackPanel>
+                                        <TextBlock Text="🏆 Leagues" Style="{StaticResource SubHeadingStyle}" Margin="0,0,0,12"/>
+                                        <TextBlock x:Name="LeaguesCount" Text="0 / 0" FontSize="24" FontWeight="Bold" Foreground="#F59E0B" Margin="0,0,0,8"/>
+                                        <ProgressBar x:Name="LeaguesProgress" Height="8" Background="#E8E8E8" Foreground="#F59E0B" Margin="0,0,0,8"/>
+                                        <TextBlock x:Name="LeaguesPercent" Text="0% Complete" Style="{StaticResource BodyStyle}"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Teams Card -->
+                                <Border Grid.Row="1" Grid.Column="1" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="20" Margin="12,12,0,12">
+                                    <StackPanel>
+                                        <TextBlock Text="🏉 Teams" Style="{StaticResource SubHeadingStyle}" Margin="0,0,0,12"/>
+                                        <TextBlock x:Name="TeamsCount" Text="0 / 0" FontSize="24" FontWeight="Bold" Foreground="#8B5CF6" Margin="0,0,0,8"/>
+                                        <ProgressBar x:Name="TeamsProgress" Height="8" Background="#E8E8E8" Foreground="#8B5CF6" Margin="0,0,0,8"/>
+                                        <TextBlock x:Name="TeamsPercent" Text="0% Complete" Style="{StaticResource BodyStyle}"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Games Card -->
+                                <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,12,0,0">
+                                    <StackPanel>
+                                        <TextBlock Text="🎮 Games" Style="{StaticResource SubHeadingStyle}" Margin="0,0,0,12"/>
+                                        <TextBlock x:Name="GamesCount" Text="0 / 0" FontSize="24" FontWeight="Bold" Foreground="{StaticResource SuccessBrush}" Margin="0,0,0,8"/>
+                                        <ProgressBar x:Name="GamesProgress" Height="8" Background="#E8E8E8" Foreground="{StaticResource SuccessBrush}" Margin="0,0,0,8"/>
+                                        <TextBlock x:Name="GamesPercent" Text="0% Complete" Style="{StaticResource BodyStyle}"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+
+                            <!-- Actions Section -->
+                            <TextBlock Text="Quick Actions" Style="{StaticResource SubHeadingStyle}" Margin="0,32,0,16"/>
+                            <StackPanel Orientation="Vertical">
+                                <Button Content="📊 View Full Statistics" Style="{StaticResource PrimaryButtonStyle}" Click="OnViewStatisticsClicked" Height="40" Margin="0,0,0,12"/>
+                                <Button Content="📋 Browse Data" Style="{StaticResource PrimaryButtonStyle}" Click="OnBrowseDataClicked" Height="40" Margin="0,0,0,12"/>
+                                <Button Content="🔄 Auto-Fetch All Data" Style="{StaticResource SecondaryButtonStyle}" Click="OnAutoFetchAllDataClicked" Height="40" Margin="0,0,0,12"/>
+                                <Button Content="⚙️ Settings" Style="{StaticResource SecondaryButtonStyle}" Click="OnSettingsClicked" Height="40"/>
+                            </StackPanel>
+
+                            <!-- Info Box -->
+                            <Border Background="{StaticResource SecondaryBrush}" CornerRadius="8" Padding="16" Margin="0,32,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="💡 Dashboard Updates" FontWeight="Bold" Margin="0,0,0,8"/>
+                                    <TextBlock Text="The statistics below update automatically every 5 seconds. Click 'Auto-Fetch All Data' in Settings to populate your database with rugby data from the API." Style="{StaticResource BodyStyle}"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- Data Tab -->
+                <TabItem Header="📋 Data" Style="{StaticResource ModernTabItem}">
+                    <Grid Margin="24">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,0,16">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Data Type:" Style="{StaticResource TitleStyle}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                <ComboBox x:Name="DataTypeCombo" Width="200" SelectionChanged="OnDataTypeChanged" Style="{StaticResource ModernComboBox}">
+                                    <ComboBoxItem>Countries</ComboBoxItem>
+                                    <ComboBoxItem>Seasons</ComboBoxItem>
+                                    <ComboBoxItem>Leagues</ComboBoxItem>
+                                    <ComboBoxItem>Teams</ComboBoxItem>
+                                    <ComboBoxItem>Games</ComboBoxItem>
+                                </ComboBox>
+                                <Button Content="🔄 Refresh" Style="{StaticResource SecondaryButtonStyle}" Click="OnRefreshClicked" Margin="12,0,0,0" Padding="12,8"/>
+                            </StackPanel>
+                        </Border>
+                        <DataGrid Grid.Row="1" x:Name="DataGrid" AutoGenerateColumns="True" Style="{StaticResource ModernDataGrid}"/>
+                    </Grid>
+                </TabItem>
+
+                <!-- Settings Tab -->
+                <TabItem Header="⚙️ Settings" Style="{StaticResource ModernTabItem}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
+                        <StackPanel MaxWidth="600">
+                            <TextBlock Text="Settings" Style="{StaticResource SubHeadingStyle}" Margin="0,0,0,24"/>
+                            <GroupBox Header="API Configuration" Style="{StaticResource ModernGroupBox}" Margin="0,0,0,16">
+                                <StackPanel>
+                                    <TextBlock Text="API Key (from api-sports.io)" Style="{StaticResource TitleStyle}" Margin="0,0,0,8"/>
+                                    <PasswordBox x:Name="ApiKeyBox" Style="{StaticResource ModernPasswordBox}" Margin="0,0,0,12" Height="36"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Content="💾 Save API Key" Style="{StaticResource PrimaryButtonStyle}" Click="OnSaveApiKeyClicked" Padding="16,10" Margin="0,0,8,0"/>
+                                        <Button Content="🔑 Clear API Key" Style="{StaticResource DangerButtonStyle}" Click="OnClearApiKeyClicked" Padding="16,10" Margin="0,0,8,0"/>
+                                        <Button Content="🧪 Test API Key" Style="{StaticResource SecondaryButtonStyle}" Click="OnTestApiKeyClicked" Padding="16,10"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </GroupBox>
+                            <GroupBox Header="Database" Style="{StaticResource ModernGroupBox}" Margin="0,0,0,16">
+                                <StackPanel>
+                                    <Button Content="🔄 Auto-Fetch All Data" Style="{StaticResource PrimaryButtonStyle}" Click="OnAutoFetchAllDataClicked" Height="40" Margin="0,0,0,8"/>
+                                    <Button Content="📂 Show Database Path" Style="{StaticResource SecondaryButtonStyle}" Click="OnShowDatabasePathClicked" Height="40" Margin="0,0,0,8"/>
+                                    <Button Content="🗑️ Clear All Data" Style="{StaticResource DangerButtonStyle}" Click="OnClearDataClicked" Height="40"/>
+                                </StackPanel>
+                            </GroupBox>
+                            <GroupBox Header="About" Style="{StaticResource ModernGroupBox}">
+                                <StackPanel>
+                                    <TextBlock Text="Rugby API Manager v1.0" Style="{StaticResource TitleStyle}" Margin="0,0,0,8"/>
+                                    <TextBlock Text="A professional application for managing rugby data from api-sports.io" Style="{StaticResource BodyStyle}"/>
+                                </StackPanel>
+                            </GroupBox>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+            </TabControl>
+        </DockPanel>
+    </Grid>
+</Window>

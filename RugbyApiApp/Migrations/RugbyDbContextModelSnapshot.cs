@@ -94,6 +94,8 @@ namespace RugbyApiApp.Migrations
 
                     b.HasIndex("HomeTeamId");
 
+                    b.HasIndex("LeagueId");
+
                     b.ToTable("Games");
                 });
 
@@ -116,6 +118,9 @@ namespace RugbyApiApp.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDataComplete")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsFavorite")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Logo")
@@ -185,6 +190,9 @@ namespace RugbyApiApp.Migrations
                     b.Property<bool>("IsDataComplete")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("IsFavorite")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Logo")
                         .HasColumnType("TEXT");
 
@@ -198,6 +206,40 @@ namespace RugbyApiApp.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Teams");
+                });
+
+            modelBuilder.Entity("RugbyApiApp.Models.Video", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("GameId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("LengthSeconds")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("Rating")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Url")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Watched")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GameId");
+
+                    b.ToTable("Videos");
                 });
 
             modelBuilder.Entity("RugbyApiApp.Models.Game", b =>
@@ -214,9 +256,31 @@ namespace RugbyApiApp.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("RugbyApiApp.Models.League", "League")
+                        .WithMany()
+                        .HasForeignKey("LeagueId");
+
                     b.Navigation("AwayTeam");
 
                     b.Navigation("HomeTeam");
+
+                    b.Navigation("League");
+                });
+
+            modelBuilder.Entity("RugbyApiApp.Models.Video", b =>
+                {
+                    b.HasOne("RugbyApiApp.Models.Game", "Game")
+                        .WithMany("Videos")
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Game");
+                });
+
+            modelBuilder.Entity("RugbyApiApp.Models.Game", b =>
+                {
+                    b.Navigation("Videos");
                 });
 #pragma warning restore 612, 618
         }

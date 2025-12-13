@@ -435,6 +435,144 @@ namespace RugbyApiApp.Services
             _context.Countries.RemoveRange(_context.Countries);
             await _context.SaveChangesAsync();
         }
+
+        /// <summary>
+        /// Add or update a video for a game
+        /// </summary>
+        public async Task<Video> UpsertVideoAsync(int videoId, int gameId, string? url, int? lengthSeconds, bool watched = false, int? rating = null)
+        {
+            var existingVideo = await _context.Videos.FirstOrDefaultAsync(v => v.Id == videoId);
+
+            if (existingVideo != null)
+            {
+                existingVideo.GameId = gameId;
+                existingVideo.Url = url ?? existingVideo.Url;
+                existingVideo.LengthSeconds = lengthSeconds ?? existingVideo.LengthSeconds;
+                existingVideo.Watched = watched;
+                existingVideo.Rating = rating ?? existingVideo.Rating;
+                existingVideo.UpdatedAt = DateTime.UtcNow;
+            }
+            else
+            {
+                existingVideo = new Video
+                {
+                    Id = videoId,
+                    GameId = gameId,
+                    Url = url,
+                    LengthSeconds = lengthSeconds,
+                    Watched = watched,
+                    Rating = rating,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+                _context.Videos.Add(existingVideo);
+            }
+
+            await _context.SaveChangesAsync();
+            return existingVideo;
+        }
+
+        /// <summary>
+        /// Get all videos for a specific game
+        /// </summary>
+        public async Task<List<Video>> GetVideosByGameIdAsync(int gameId)
+        {
+            return await _context.Videos
+                .Where(v => v.GameId == gameId)
+                .OrderByDescending(v => v.CreatedAt)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Get a specific video by ID
+        /// </summary>
+        public async Task<Video?> GetVideoByIdAsync(int videoId)
+        {
+            return await _context.Videos.FirstOrDefaultAsync(v => v.Id == videoId);
+        }
+
+        /// <summary>
+        /// Get all videos
+        /// </summary>
+        public async Task<List<Video>> GetAllVideosAsync()
+        {
+            return await _context.Videos
+                .Include(v => v.Game)
+                .OrderByDescending(v => v.CreatedAt)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Get unwatched videos
+        /// </summary>
+        public async Task<List<Video>> GetUnwatchedVideosAsync()
+        {
+            return await _context.Videos
+                .Where(v => !v.Watched)
+                .Include(v => v.Game)
+                .OrderByDescending(v => v.CreatedAt)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Get videos by rating
+        /// </summary>
+        public async Task<List<Video>> GetVideosByRatingAsync(int rating)
+        {
+            return await _context.Videos
+                .Where(v => v.Rating == rating)
+                .Include(v => v.Game)
+                .OrderByDescending(v => v.CreatedAt)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Mark a video as watched
+        /// </summary>
+        public async Task<bool> MarkVideoWatchedAsync(int videoId, int? rating = null)
+        {
+            var video = await _context.Videos.FirstOrDefaultAsync(v => v.Id == videoId);
+            if (video == null)
+                return false;
+
+            video.Watched = true;
+            if (rating.HasValue && rating >= 1 && rating <= 5)
+            {
+                video.Rating = rating;
+            }
+            video.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        /// <summary>
+        /// Delete a video
+        /// </summary>
+        public async Task<bool> DeleteVideoAsync(int videoId)
+        {
+            var video = await _context.Videos.FirstOrDefaultAsync(v => v.Id == videoId);
+            if (video == null)
+                return false;
+
+            _context.Videos.Remove(video);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        /// <summary>
+        /// Get video statistics
+        /// </summary>
+        public async Task<(int Total, int Watched, int Unwatched, double AverageRating)> GetVideoStatsAsync()
+        {
+            var videos = await _context.Videos.ToListAsync();
+            var total = videos.Count;
+            var watched = videos.Count(v => v.Watched);
+            var unwatched = total - watched;
+            var ratedVideos = videos.Where(v => v.Rating.HasValue).ToList();
+            var averageRating = ratedVideos.Any() ? ratedVideos.Average(v => v.Rating!.Value) : 0;
+
+            return (total, watched, unwatched, averageRating);
+        }
     }
 
     /// <summary>

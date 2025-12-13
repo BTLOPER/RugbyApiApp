@@ -18,5 +18,6 @@
 
         public Team? HomeTeam { get; set; }
         public Team? AwayTeam { get; set; }
+        public ICollection<Video>? Videos { get; set; }
     }
 }
