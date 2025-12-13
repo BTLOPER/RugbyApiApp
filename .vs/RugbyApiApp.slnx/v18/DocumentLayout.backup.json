@@ -3,20 +3,20 @@
   "WorkspaceRootPath": "C:\\Users\\Brand\\source\\repos\\RugbyApiApp\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{4A1B9E51-5E2A-4CA2-FE39-5E50A28A7491}|RugbyApiApp\\RugbyApiApp.csproj|c:\\users\\brand\\source\\repos\\rugbyapiapp\\rugbyapiapp\\services\\rugbyapiclient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4A1B9E51-5E2A-4CA2-FE39-5E50A28A7491}|RugbyApiApp\\RugbyApiApp.csproj|solutionrelative:rugbyapiapp\\services\\rugbyapiclient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{4A1B9E51-5E2A-4CA2-FE39-5E50A28A7491}|RugbyApiApp\\RugbyApiApp.csproj|c:\\users\\brand\\source\\repos\\rugbyapiapp\\rugbyapiapp\\models\\team.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4A1B9E51-5E2A-4CA2-FE39-5E50A28A7491}|RugbyApiApp\\RugbyApiApp.csproj|solutionrelative:rugbyapiapp\\models\\team.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4A1B9E51-5E2A-4CA2-FE39-5E50A28A7491}|RugbyApiApp\\RugbyApiApp.csproj|c:\\users\\brand\\source\\repos\\rugbyapiapp\\rugbyapiapp\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4A1B9E51-5E2A-4CA2-FE39-5E50A28A7491}|RugbyApiApp\\RugbyApiApp.csproj|solutionrelative:rugbyapiapp\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{4A1B9E51-5E2A-4CA2-FE39-5E50A28A7491}|RugbyApiApp\\RugbyApiApp.csproj|c:\\users\\brand\\source\\repos\\rugbyapiapp\\rugbyapiapp\\services\\dataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4A1B9E51-5E2A-4CA2-FE39-5E50A28A7491}|RugbyApiApp\\RugbyApiApp.csproj|solutionrelative:rugbyapiapp\\services\\dataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4A1B9E51-5E2A-4CA2-FE39-5E50A28A7491}|RugbyApiApp\\RugbyApiApp.csproj|c:\\users\\brand\\source\\repos\\rugbyapiapp\\rugbyapiapp\\dtos\\apiresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4A1B9E51-5E2A-4CA2-FE39-5E50A28A7491}|RugbyApiApp\\RugbyApiApp.csproj|solutionrelative:rugbyapiapp\\dtos\\apiresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{2DBADD83-877B-1027-8BE4-2FA67C54AA5E}|RugbyApiApp.MAUI\\RugbyApiApp.MAUI.csproj|c:\\users\\brand\\source\\repos\\rugbyapiapp\\rugbyapiapp.maui\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2DBADD83-877B-1027-8BE4-2FA67C54AA5E}|RugbyApiApp.MAUI\\RugbyApiApp.MAUI.csproj|solutionrelative:rugbyapiapp.maui\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4A1B9E51-5E2A-4CA2-FE39-5E50A28A7491}|RugbyApiApp\\RugbyApiApp.csproj|c:\\users\\brand\\source\\repos\\rugbyapiapp\\rugbyapiapp\\dtos\\seasonresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4A1B9E51-5E2A-4CA2-FE39-5E50A28A7491}|RugbyApiApp\\RugbyApiApp.csproj|solutionrelative:rugbyapiapp\\dtos\\seasonresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{2DBADD83-877B-1027-8BE4-2FA67C54AA5E}|RugbyApiApp.MAUI\\RugbyApiApp.MAUI.csproj|c:\\users\\brand\\source\\repos\\rugbyapiapp\\rugbyapiapp.maui\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{2DBADD83-877B-1027-8BE4-2FA67C54AA5E}|RugbyApiApp.MAUI\\RugbyApiApp.MAUI.csproj|solutionrelative:rugbyapiapp.maui\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,8 +26,12 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 12,
+          "SelectedChildIndex": 14,
           "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:129:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
@@ -69,55 +73,79 @@
               "Name": "ST:382929337:0:{bf84ea66-d821-4dba-b1b1-2777d8574775}"
             },
             {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "SeasonResponse.cs",
-              "DocumentMoniker": "C:\\Users\\Brand\\source\\repos\\RugbyApiApp\\RugbyApiApp\\DTOs\\SeasonResponse.cs",
-              "RelativeDocumentMoniker": "RugbyApiApp\\DTOs\\SeasonResponse.cs",
-              "ToolTip": "C:\\Users\\Brand\\source\\repos\\RugbyApiApp\\RugbyApiApp\\DTOs\\SeasonResponse.cs",
-              "RelativeToolTip": "RugbyApiApp\\DTOs\\SeasonResponse.cs",
-              "ViewState": "AgIAAA8AAAAAAAAAAAAAwBsAAAAvAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-10T22:11:11.175Z",
+              "Title": "MainWindow.xaml",
+              "DocumentMoniker": "C:\\Users\\Brand\\source\\repos\\RugbyApiApp\\RugbyApiApp.MAUI\\MainWindow.xaml",
+              "RelativeDocumentMoniker": "RugbyApiApp.MAUI\\MainWindow.xaml",
+              "ToolTip": "C:\\Users\\Brand\\source\\repos\\RugbyApiApp\\RugbyApiApp.MAUI\\MainWindow.xaml",
+              "RelativeToolTip": "RugbyApiApp.MAUI\\MainWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-12-11T23:59:50.047Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "ApiResponse.cs",
-              "DocumentMoniker": "C:\\Users\\Brand\\source\\repos\\RugbyApiApp\\RugbyApiApp\\DTOs\\ApiResponse.cs",
-              "RelativeDocumentMoniker": "RugbyApiApp\\DTOs\\ApiResponse.cs",
-              "ToolTip": "C:\\Users\\Brand\\source\\repos\\RugbyApiApp\\RugbyApiApp\\DTOs\\ApiResponse.cs",
-              "RelativeToolTip": "RugbyApiApp\\DTOs\\ApiResponse.cs",
-              "ViewState": "AgIAAAsAAAAAAAAAAAAswCAAAAASAAAAAAAAAA==",
+              "Title": "MainWindow.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\Brand\\source\\repos\\RugbyApiApp\\RugbyApiApp.MAUI\\MainWindow.xaml.cs",
+              "RelativeDocumentMoniker": "RugbyApiApp.MAUI\\MainWindow.xaml.cs",
+              "ToolTip": "C:\\Users\\Brand\\source\\repos\\RugbyApiApp\\RugbyApiApp.MAUI\\MainWindow.xaml.cs",
+              "RelativeToolTip": "RugbyApiApp.MAUI\\MainWindow.xaml.cs",
+              "ViewState": "AgIAAB8AAAAAAAAAAAAgwBAAAAAeAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-10T22:11:02.135Z",
+              "WhenOpened": "2025-12-12T00:01:18.31Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "FloatingWindowState": {
+        "Id": "82f2d7ba-9877-4525-a8e1-c51caeceaf53",
+        "Display": 1,
+        "X": 1256,
+        "Y": 116,
+        "Width": 598,
+        "Height": 891,
+        "WindowState": 2
+      },
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "DataService.cs",
+              "DocumentMoniker": "C:\\Users\\Brand\\source\\repos\\RugbyApiApp\\RugbyApiApp\\Services\\DataService.cs",
+              "RelativeDocumentMoniker": "RugbyApiApp\\Services\\DataService.cs",
+              "ToolTip": "C:\\Users\\Brand\\source\\repos\\RugbyApiApp\\RugbyApiApp\\Services\\DataService.cs",
+              "RelativeToolTip": "RugbyApiApp\\Services\\DataService.cs",
+              "ViewState": "AgIAAAABAAAAAAAAAAAAAFABAAAgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-13T19:35:23.607Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "RugbyApiClient.cs",
-              "DocumentMoniker": "C:\\Users\\Brand\\source\\repos\\RugbyApiApp\\RugbyApiApp\\Services\\RugbyApiClient.cs",
-              "RelativeDocumentMoniker": "RugbyApiApp\\Services\\RugbyApiClient.cs",
-              "ToolTip": "C:\\Users\\Brand\\source\\repos\\RugbyApiApp\\RugbyApiApp\\Services\\RugbyApiClient.cs",
-              "RelativeToolTip": "RugbyApiApp\\Services\\RugbyApiClient.cs",
-              "ViewState": "AgIAAMwAAAAAAAAAAADwv9oAAAAJAAAAAAAAAA==",
+              "Title": "Team.cs",
+              "DocumentMoniker": "C:\\Users\\Brand\\source\\repos\\RugbyApiApp\\RugbyApiApp\\Models\\Team.cs",
+              "RelativeDocumentMoniker": "RugbyApiApp\\Models\\Team.cs",
+              "ToolTip": "C:\\Users\\Brand\\source\\repos\\RugbyApiApp\\RugbyApiApp\\Models\\Team.cs",
+              "RelativeToolTip": "RugbyApiApp\\Models\\Team.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-10T21:59:00.708Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\Brand\\source\\repos\\RugbyApiApp\\RugbyApiApp\\Program.cs",
-              "RelativeDocumentMoniker": "RugbyApiApp\\Program.cs",
-              "ToolTip": "C:\\Users\\Brand\\source\\repos\\RugbyApiApp\\RugbyApiApp\\Program.cs",
-              "RelativeToolTip": "RugbyApiApp\\Program.cs",
-              "ViewState": "AgIAAHIEAAAAAAAAAAASwLICAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-10T02:22:41.867Z",
+              "WhenOpened": "2025-12-13T19:35:15.32Z",
               "EditorCaption": ""
             }
           ]

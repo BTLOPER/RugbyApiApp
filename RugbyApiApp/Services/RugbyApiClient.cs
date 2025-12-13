@@ -197,6 +197,17 @@ namespace RugbyApiApp.Services
         }
 
         /// <summary>
+        /// Get API status and usage information
+        /// </summary>
+        public async Task<(StatusResponse? Status, string? ErrorMessage)> GetStatusAsync()
+        {
+            var request = new RestRequest("/status");
+            var response = await _client.ExecuteAsync<StatusResponse>(request);
+            var errorMessage = GetErrorMessage(response.Data?.Errors?.OfType<Dictionary<string, string>>().FirstOrDefault());
+            return (response.Data, errorMessage);
+        }
+
+        /// <summary>
         /// Convert media.api-sports.io URL to CDN URL
         /// </summary>
         public static string ConvertMediaUrlToCdn(string? imageUrl)

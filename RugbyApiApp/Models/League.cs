@@ -1,4 +1,4 @@
-namespace RugbyApiApp.Models
+﻿namespace RugbyApiApp.Models
 {
     public class League
     {
