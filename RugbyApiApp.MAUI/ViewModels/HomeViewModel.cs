@@ -129,14 +129,22 @@ namespace RugbyApiApp.MAUI.ViewModels
             _dataService = dataService;
             RefreshStatsCommand = new AsyncRelayCommand(_ => RefreshStatsAsync());
 
-            // Initialize dashboard and start refresh timer
-            _ = InitializeAsync();
+            // Initialize dashboard - don't await, let it load in background
+            InitializeAsync();
         }
 
-        private async Task InitializeAsync()
+        private async void InitializeAsync()
         {
-            await RefreshStatsAsync();
-            StartRefreshTimer();
+            try
+            {
+                await RefreshStatsAsync();
+                StartRefreshTimer();
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't crash UI
+                System.Diagnostics.Debug.WriteLine($"HomeViewModel initialization error: {ex.Message}");
+            }
         }
 
         private async Task RefreshStatsAsync()
@@ -167,7 +175,7 @@ namespace RugbyApiApp.MAUI.ViewModels
             }
             catch (Exception ex)
             {
-                // Silent fail to prevent UI interruption
+                System.Diagnostics.Debug.WriteLine($"RefreshStatsAsync error: {ex.Message}");
             }
         }
 

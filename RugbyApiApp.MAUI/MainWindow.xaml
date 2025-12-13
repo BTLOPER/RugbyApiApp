@@ -206,9 +206,9 @@
                                 <Border Grid.Row="0" Grid.Column="0" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,0,12,12">
                                     <StackPanel>
                                         <TextBlock Text="🌍 Countries" Style="{StaticResource SubHeadingStyle}" Margin="0,0,0,12"/>
-                                        <TextBlock x:Name="CountriesCount" Text="0 / 0" FontSize="24" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}" Margin="0,0,0,8"/>
-                                        <ProgressBar x:Name="CountriesProgress" Height="8" Background="#E8E8E8" Foreground="{StaticResource PrimaryBrush}" Margin="0,0,0,8"/>
-                                        <TextBlock x:Name="CountriesPercent" Text="0% Complete" Style="{StaticResource BodyStyle}"/>
+                                        <TextBlock Text="{Binding CountriesPercent}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}" Margin="0,0,0,8"/>
+                                        <ProgressBar Height="8" Background="#E8E8E8" Foreground="{StaticResource PrimaryBrush}" Margin="0,0,0,8" Value="{Binding CountriesProgress}"/>
+                                        <TextBlock Text="{Binding CountriesPercent}" Style="{StaticResource BodyStyle}"/>
                                     </StackPanel>
                                 </Border>
 
@@ -216,9 +216,9 @@
                                 <Border Grid.Row="0" Grid.Column="1" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="20" Margin="12,0,0,12">
                                     <StackPanel>
                                         <TextBlock Text="📅 Seasons" Style="{StaticResource SubHeadingStyle}" Margin="0,0,0,12"/>
-                                        <TextBlock x:Name="SeasonsCount" Text="0 / 0" FontSize="24" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,8"/>
-                                        <ProgressBar x:Name="SeasonsProgress" Height="8" Background="#E8E8E8" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,8"/>
-                                        <TextBlock x:Name="SeasonsPercent" Text="0% Complete" Style="{StaticResource BodyStyle}"/>
+                                        <TextBlock Text="{Binding SeasonsPercent}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,8"/>
+                                        <ProgressBar Height="8" Background="#E8E8E8" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,8" Value="{Binding SeasonsProgress}"/>
+                                        <TextBlock Text="{Binding SeasonsPercent}" Style="{StaticResource BodyStyle}"/>
                                     </StackPanel>
                                 </Border>
 
@@ -226,9 +226,9 @@
                                 <Border Grid.Row="1" Grid.Column="0" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,12,12,12">
                                     <StackPanel>
                                         <TextBlock Text="🏆 Leagues" Style="{StaticResource SubHeadingStyle}" Margin="0,0,0,12"/>
-                                        <TextBlock x:Name="LeaguesCount" Text="0 / 0" FontSize="24" FontWeight="Bold" Foreground="#F59E0B" Margin="0,0,0,8"/>
-                                        <ProgressBar x:Name="LeaguesProgress" Height="8" Background="#E8E8E8" Foreground="#F59E0B" Margin="0,0,0,8"/>
-                                        <TextBlock x:Name="LeaguesPercent" Text="0% Complete" Style="{StaticResource BodyStyle}"/>
+                                        <TextBlock Text="{Binding LeaguesPercent}" FontSize="24" FontWeight="Bold" Foreground="#F59E0B" Margin="0,0,0,8"/>
+                                        <ProgressBar Height="8" Background="#E8E8E8" Foreground="#F59E0B" Margin="0,0,0,8" Value="{Binding LeaguesProgress}"/>
+                                        <TextBlock Text="{Binding LeaguesPercent}" Style="{StaticResource BodyStyle}"/>
                                     </StackPanel>
                                 </Border>
 
@@ -236,9 +236,9 @@
                                 <Border Grid.Row="1" Grid.Column="1" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="20" Margin="12,12,0,12">
                                     <StackPanel>
                                         <TextBlock Text="🏉 Teams" Style="{StaticResource SubHeadingStyle}" Margin="0,0,0,12"/>
-                                        <TextBlock x:Name="TeamsCount" Text="0 / 0" FontSize="24" FontWeight="Bold" Foreground="#8B5CF6" Margin="0,0,0,8"/>
-                                        <ProgressBar x:Name="TeamsProgress" Height="8" Background="#E8E8E8" Foreground="#8B5CF6" Margin="0,0,0,8"/>
-                                        <TextBlock x:Name="TeamsPercent" Text="0% Complete" Style="{StaticResource BodyStyle}"/>
+                                        <TextBlock Text="{Binding TeamsPercent}" FontSize="24" FontWeight="Bold" Foreground="#8B5CF6" Margin="0,0,0,8"/>
+                                        <ProgressBar Height="8" Background="#E8E8E8" Foreground="#8B5CF6" Margin="0,0,0,8" Value="{Binding TeamsProgress}"/>
+                                        <TextBlock Text="{Binding TeamsPercent}" Style="{StaticResource BodyStyle}"/>
                                     </StackPanel>
                                 </Border>
 
@@ -246,9 +246,9 @@
                                 <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,12,0,0">
                                     <StackPanel>
                                         <TextBlock Text="🎮 Games" Style="{StaticResource SubHeadingStyle}" Margin="0,0,0,12"/>
-                                        <TextBlock x:Name="GamesCount" Text="0 / 0" FontSize="24" FontWeight="Bold" Foreground="{StaticResource SuccessBrush}" Margin="0,0,0,8"/>
-                                        <ProgressBar x:Name="GamesProgress" Height="8" Background="#E8E8E8" Foreground="{StaticResource SuccessBrush}" Margin="0,0,0,8"/>
-                                        <TextBlock x:Name="GamesPercent" Text="0% Complete" Style="{StaticResource BodyStyle}"/>
+                                        <TextBlock Text="{Binding GamesPercent}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource SuccessBrush}" Margin="0,0,0,8"/>
+                                        <ProgressBar Height="8" Background="#E8E8E8" Foreground="{StaticResource SuccessBrush}" Margin="0,0,0,8" Value="{Binding GamesProgress}"/>
+                                        <TextBlock Text="{Binding GamesPercent}" Style="{StaticResource BodyStyle}"/>
                                     </StackPanel>
                                 </Border>
                             </Grid>
@@ -293,7 +293,7 @@
                                 <Button Content="🔄 Refresh" Style="{StaticResource SecondaryButtonStyle}" Click="OnRefreshClicked" Margin="12,0,0,0" Padding="12,8"/>
                             </StackPanel>
                         </Border>
-                        <DataGrid Grid.Row="1" x:Name="DataGrid" AutoGenerateColumns="True" Style="{StaticResource ModernDataGrid}"/>
+                        <DataGrid Grid.Row="1" x:Name="DataGrid" ItemsSource="{Binding GridData}" AutoGenerateColumns="True" Style="{StaticResource ModernDataGrid}"/>
                     </Grid>
                 </TabItem>
 
@@ -305,19 +305,20 @@
                             <GroupBox Header="API Configuration" Style="{StaticResource ModernGroupBox}" Margin="0,0,0,16">
                                 <StackPanel>
                                     <TextBlock Text="API Key (from api-sports.io)" Style="{StaticResource TitleStyle}" Margin="0,0,0,8"/>
-                                    <PasswordBox x:Name="ApiKeyBox" Style="{StaticResource ModernPasswordBox}" Margin="0,0,0,12" Height="36"/>
+                                    <TextBox x:Name="ApiKeyBox" Margin="0,0,0,12" Height="36" Text="{Binding ApiKey, UpdateSourceTrigger=PropertyChanged}" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="12,8" FontSize="12" Foreground="{StaticResource TextBrush}"/>
                                     <StackPanel Orientation="Horizontal">
-                                        <Button Content="💾 Save API Key" Style="{StaticResource PrimaryButtonStyle}" Click="OnSaveApiKeyClicked" Padding="16,10" Margin="0,0,8,0"/>
-                                        <Button Content="🔑 Clear API Key" Style="{StaticResource DangerButtonStyle}" Click="OnClearApiKeyClicked" Padding="16,10" Margin="0,0,8,0"/>
-                                        <Button Content="🧪 Test API Key" Style="{StaticResource SecondaryButtonStyle}" Click="OnTestApiKeyClicked" Padding="16,10"/>
+                                        <Button Content="💾 Save API Key" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding SaveApiKeyCommand}" Padding="16,10" Margin="0,0,8,0"/>
+                                        <Button Content="🔑 Clear API Key" Style="{StaticResource DangerButtonStyle}" Command="{Binding ClearApiKeyCommand}" Padding="16,10" Margin="0,0,8,0"/>
+                                        <Button Content="🧪 Test API Key" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding TestApiKeyCommand}" Padding="16,10"/>
                                     </StackPanel>
+                                    <TextBlock Text="{Binding StatusMessage}" Style="{StaticResource BodyStyle}" Margin="0,12,0,0" TextWrapping="Wrap" Foreground="{StaticResource TextBrush}"/>
                                 </StackPanel>
                             </GroupBox>
                             <GroupBox Header="Database" Style="{StaticResource ModernGroupBox}" Margin="0,0,0,16">
                                 <StackPanel>
-                                    <Button Content="🔄 Auto-Fetch All Data" Style="{StaticResource PrimaryButtonStyle}" Click="OnAutoFetchAllDataClicked" Height="40" Margin="0,0,0,8"/>
-                                    <Button Content="📂 Show Database Path" Style="{StaticResource SecondaryButtonStyle}" Click="OnShowDatabasePathClicked" Height="40" Margin="0,0,0,8"/>
-                                    <Button Content="🗑️ Clear All Data" Style="{StaticResource DangerButtonStyle}" Click="OnClearDataClicked" Height="40"/>
+                                    <Button Content="🔄 Auto-Fetch All Data" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding AutoFetchAllDataCommand}" Height="40" Margin="0,0,0,8"/>
+                                    <Button Content="📂 Show Database Path" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ShowDatabasePathCommand}" Height="40" Margin="0,0,0,8"/>
+                                    <Button Content="🗑️ Clear All Data" Style="{StaticResource DangerButtonStyle}" Command="{Binding ClearAllDataCommand}" Height="40"/>
                                 </StackPanel>
                             </GroupBox>
                             <GroupBox Header="About" Style="{StaticResource ModernGroupBox}">

@@ -39,7 +39,7 @@ public partial class MainWindow : Window
         base.OnClosed(e);
     }
 
-    // Event handlers that can be removed once tabs use proper command bindings
+    // Navigation handlers
     private void OnViewStatisticsClicked(object sender, RoutedEventArgs e)
     {
         var stats = _viewModel?.HomeViewModel;
@@ -67,61 +67,6 @@ public partial class MainWindow : Window
         TabControl.SelectedIndex = 2; // Switch to Settings tab
     }
 
-    private void OnDataTypeChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs? e)
-    {
-        if (DataTypeCombo.SelectedIndex >= 0 && _viewModel?.DataViewModel != null)
-        {
-            var selectedItem = (DataTypeCombo.SelectedItem as System.Windows.Controls.ComboBoxItem)?.Content as string;
-            _viewModel.DataViewModel.SelectedDataType = selectedItem;
-        }
-    }
-
-    private void OnRefreshClicked(object sender, RoutedEventArgs e)
-    {
-        if (DataTypeCombo.SelectedIndex >= 0 && _viewModel?.DataViewModel != null)
-        {
-            _viewModel.DataViewModel.RefreshCommand.Execute(null);
-        }
-    }
-
-    private void OnSaveApiKeyClicked(object sender, RoutedEventArgs e)
-    {
-        if (_viewModel?.SettingsViewModel != null)
-        {
-            _viewModel.SettingsViewModel.ApiKey = ApiKeyBox.Password;
-            _viewModel.SettingsViewModel.SaveApiKeyCommand.Execute(null);
-            ApiKeyBox.Clear();
-        }
-    }
-
-    private void OnClearApiKeyClicked(object sender, RoutedEventArgs e)
-    {
-        if (_viewModel?.SettingsViewModel != null)
-        {
-            var result = MessageBox.Show(
-                "Remove stored API key?\n\n" +
-                "Note: To also clear from User Secrets, run:\n" +
-                "dotnet user-secrets remove RugbyApiKey",
-                "Confirm",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
-
-            if (result == MessageBoxResult.Yes)
-            {
-                _viewModel.SettingsViewModel.ClearApiKeyCommand.Execute(null);
-                ApiKeyBox.Clear();
-            }
-        }
-    }
-
-    private void OnTestApiKeyClicked(object sender, RoutedEventArgs e)
-    {
-        if (_viewModel?.SettingsViewModel != null)
-        {
-            _viewModel.SettingsViewModel.TestApiKeyCommand.Execute(null);
-        }
-    }
-
     private void OnAutoFetchAllDataClicked(object sender, RoutedEventArgs e)
     {
         if (_viewModel?.SettingsViewModel != null)
@@ -141,14 +86,6 @@ public partial class MainWindow : Window
         }
     }
 
-    private void OnShowDatabasePathClicked(object sender, RoutedEventArgs e)
-    {
-        if (_viewModel?.SettingsViewModel != null)
-        {
-            _viewModel.SettingsViewModel.ShowDatabasePathCommand.Execute(null);
-        }
-    }
-
     private void OnClearDataClicked(object sender, RoutedEventArgs e)
     {
         if (_viewModel?.SettingsViewModel != null)
@@ -163,6 +100,24 @@ public partial class MainWindow : Window
             {
                 _viewModel.SettingsViewModel.ClearAllDataCommand.Execute(null);
             }
+        }
+    }
+
+    // Data tab handlers
+    private void OnDataTypeChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs? e)
+    {
+        if (DataTypeCombo.SelectedIndex >= 0 && _viewModel?.DataViewModel != null)
+        {
+            var selectedItem = (DataTypeCombo.SelectedItem as System.Windows.Controls.ComboBoxItem)?.Content as string;
+            _viewModel.DataViewModel.SelectedDataType = selectedItem;
+        }
+    }
+
+    private void OnRefreshClicked(object sender, RoutedEventArgs e)
+    {
+        if (DataTypeCombo.SelectedIndex >= 0 && _viewModel?.DataViewModel != null)
+        {
+            _viewModel.DataViewModel.RefreshCommand.Execute(null);
         }
     }
 }
