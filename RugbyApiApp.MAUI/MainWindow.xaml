@@ -295,25 +295,72 @@
                                     <ComboBoxItem>Games</ComboBoxItem>
                                 </ComboBox>
                                 <Button Content="🔄 Refresh" Style="{StaticResource SecondaryButtonStyle}" Click="OnRefreshClicked" Margin="12,0,0,0" Padding="12,8"/>
+                                
+                                <!-- Search and Filter Section (only visible for Teams/Leagues) -->
+                                <Separator Width="1" Background="{StaticResource BorderBrush}" Margin="16,0"/>
+                                
+                                <TextBlock Text="Search:" Style="{StaticResource TitleStyle}" VerticalAlignment="Center" Margin="12,0,8,0"/>
+                                <TextBox x:Name="SearchBox" Width="200" Height="36" TextChanged="OnSearchTextChanged" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="12,8" Foreground="{StaticResource TextBrush}"/>
+                                
+                                <CheckBox x:Name="FavoritesCheckBox" Content="⭐ Favorites Only" VerticalAlignment="Center" Margin="16,0,0,0" Checked="OnFavoritesFilterChanged" Unchecked="OnFavoritesFilterChanged" Foreground="{StaticResource TextBrush}"/>
                             </StackPanel>
                         </Border>
-                        <DataGrid Grid.Row="1" x:Name="DataGrid" ItemsSource="{Binding GridData}" AutoGenerateColumns="False" Style="{StaticResource ModernDataGrid}" CellEditEnding="DataGrid_CellEditEnding">
-                            <DataGrid.Columns>
-                                <DataGridCheckBoxColumn Header="⭐ Favorite" Binding="{Binding Favorite}" IsReadOnly="False" Width="100"/>
-                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="60"/>
-                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True" Width="200"/>
-                                <DataGridTextColumn Header="Code" Binding="{Binding Code}" IsReadOnly="True" Width="100"/>
-                                <DataGridTextColumn Header="Country" Binding="{Binding Country}" IsReadOnly="True" Width="100"/>
-                                <DataGridTextColumn Header="Type" Binding="{Binding Type}" IsReadOnly="True" Width="100"/>
-                                <DataGridTextColumn Header="Year" Binding="{Binding Year}" IsReadOnly="True" Width="100"/>
-                                <DataGridTextColumn Header="Current" Binding="{Binding Current}" IsReadOnly="True" Width="100"/>
-                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" IsReadOnly="True" Width="150"/>
-                                <DataGridTextColumn Header="Home" Binding="{Binding Home}" IsReadOnly="True" Width="150"/>
-                                <DataGridTextColumn Header="Away" Binding="{Binding Away}" IsReadOnly="True" Width="150"/>
-                                <DataGridTextColumn Header="Date" Binding="{Binding Date}" IsReadOnly="True" Width="100"/>
-                                <DataGridTextColumn Header="Venue" Binding="{Binding Venue}" IsReadOnly="True" Width="200"/>
-                            </DataGrid.Columns>
-                        </DataGrid>
+                        
+                        <Grid Grid.Row="1">
+                            <Grid x:Name="DataGridContainer">
+                                <!-- Countries DataGrid -->
+                                <DataGrid x:Name="CountriesDataGrid" ItemsSource="{Binding GridData}" AutoGenerateColumns="False" Style="{StaticResource ModernDataGrid}" CellEditEnding="DataGrid_CellEditEnding" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="60"/>
+                                        <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True" Width="400"/>
+                                        <DataGridTextColumn Header="Code" Binding="{Binding Code}" IsReadOnly="True" Width="100"/>
+                                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" IsReadOnly="True" Width="150"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <!-- Seasons DataGrid -->
+                                <DataGrid x:Name="SeasonsDataGrid" ItemsSource="{Binding GridData}" AutoGenerateColumns="False" Style="{StaticResource ModernDataGrid}" CellEditEnding="DataGrid_CellEditEnding" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="60"/>
+                                        <DataGridTextColumn Header="Year" Binding="{Binding Year}" IsReadOnly="True" Width="120"/>
+                                        <DataGridTextColumn Header="Current" Binding="{Binding Current}" IsReadOnly="True" Width="120"/>
+                                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" IsReadOnly="True" Width="150"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <!-- Leagues DataGrid -->
+                                <DataGrid x:Name="LeaguesDataGrid" ItemsSource="{Binding GridData}" AutoGenerateColumns="False" Style="{StaticResource ModernDataGrid}" CellEditEnding="DataGrid_CellEditEnding" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                                    <DataGrid.Columns>
+                                        <DataGridCheckBoxColumn Header="⭐ Favorite" Binding="{Binding Favorite}" IsReadOnly="False" Width="100"/>
+                                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="60"/>
+                                        <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True" Width="300"/>
+                                        <DataGridTextColumn Header="Country" Binding="{Binding Country}" IsReadOnly="True" Width="120"/>
+                                        <DataGridTextColumn Header="Type" Binding="{Binding Type}" IsReadOnly="True" Width="150"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <!-- Teams DataGrid -->
+                                <DataGrid x:Name="TeamsDataGrid" ItemsSource="{Binding GridData}" AutoGenerateColumns="False" Style="{StaticResource ModernDataGrid}" CellEditEnding="DataGrid_CellEditEnding" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                                    <DataGrid.Columns>
+                                        <DataGridCheckBoxColumn Header="⭐ Favorite" Binding="{Binding Favorite}" IsReadOnly="False" Width="100"/>
+                                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="60"/>
+                                        <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True" Width="350"/>
+                                        <DataGridTextColumn Header="Code" Binding="{Binding Code}" IsReadOnly="True" Width="100"/>
+                                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" IsReadOnly="True" Width="150"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <!-- Games DataGrid -->
+                                <DataGrid x:Name="GamesDataGrid" ItemsSource="{Binding GridData}" AutoGenerateColumns="False" Style="{StaticResource ModernDataGrid}" CellEditEnding="DataGrid_CellEditEnding" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Home Team" Binding="{Binding Home}" IsReadOnly="True" Width="250"/>
+                                        <DataGridTextColumn Header="Away Team" Binding="{Binding Away}" IsReadOnly="True" Width="250"/>
+                                        <DataGridTextColumn Header="Date" Binding="{Binding Date}" IsReadOnly="True" Width="120"/>
+                                        <DataGridTextColumn Header="Venue" Binding="{Binding Venue}" IsReadOnly="True" Width="300"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </Grid>
                     </Grid>
                 </TabItem>
 
