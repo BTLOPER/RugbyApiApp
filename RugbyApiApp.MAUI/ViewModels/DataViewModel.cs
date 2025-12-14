@@ -57,6 +57,7 @@ namespace RugbyApiApp.MAUI.ViewModels
         public ICommand FetchSeasonsCommand { get; }
         public ICommand FetchLeaguesCommand { get; }
         public ICommand FetchGamesCommand { get; }
+        public ICommand ToggleFavoriteCommand { get; }
 
         public DataViewModel(DataService dataService, RugbyApiClient? apiClient = null)
         {
@@ -73,6 +74,7 @@ namespace RugbyApiApp.MAUI.ViewModels
             FetchSeasonsCommand = new AsyncRelayCommand(_ => FetchSeasonsAsync());
             FetchLeaguesCommand = new AsyncRelayCommand(_ => FetchLeaguesAsync());
             FetchGamesCommand = new AsyncRelayCommand(_ => FetchGamesAsync());
+            ToggleFavoriteCommand = new AsyncRelayCommand<int>(id => ToggleFavoriteAsync(id));
         }
 
         public void SetApiClient(RugbyApiClient? apiClient)
@@ -109,7 +111,7 @@ namespace RugbyApiApp.MAUI.ViewModels
             try
             {
                 var countries = await _dataService.GetCountriesAsync();
-                GridData = countries.Select(c => new
+                GridData = countries.Select(c => new GridDataItem
                 {
                     Name = c.Name,
                     Code = c.Code,
@@ -128,7 +130,7 @@ namespace RugbyApiApp.MAUI.ViewModels
             try
             {
                 var seasons = await _dataService.GetSeasonsAsync();
-                GridData = seasons.Select(s => new
+                GridData = seasons.Select(s => new GridDataItem
                 {
                     Year = s.Year,
                     Current = s.IsCurrent ? "Yes" : "No",
@@ -147,11 +149,13 @@ namespace RugbyApiApp.MAUI.ViewModels
             try
             {
                 var leagues = await _dataService.GetLeaguesAsync();
-                GridData = leagues.Select(l => new
+                GridData = leagues.Select(l => new GridDataItem
                 {
+                    Id = l.Id,
                     Name = l.Name,
                     Country = l.CountryCode,
-                    Type = l.Type
+                    Type = l.Type,
+                    Favorite = l.IsFavorite
                 }).ToList();
                 StatusMessage = $"Loaded {leagues.Count} leagues";
             }
@@ -166,11 +170,13 @@ namespace RugbyApiApp.MAUI.ViewModels
             try
             {
                 var teams = await _dataService.GetTeamsAsync();
-                GridData = teams.Select(t => new
+                GridData = teams.Select(t => new GridDataItem
                 {
+                    Id = t.Id,
                     Name = t.Name,
                     Code = t.Code,
-                    Status = t.IsDataComplete ? "✓ Complete" : "⚠ Incomplete"
+                    Status = t.IsDataComplete ? "✓ Complete" : "⚠ Incomplete",
+                    Favorite = t.IsFavorite
                 }).ToList();
                 StatusMessage = $"Loaded {teams.Count} teams";
             }
@@ -185,7 +191,7 @@ namespace RugbyApiApp.MAUI.ViewModels
             try
             {
                 var games = await _dataService.GetGamesAsync();
-                GridData = games.Select(g => new
+                GridData = games.Select(g => new GridDataItem
                 {
                     Home = g.HomeTeam?.Name ?? "Unknown",
                     Away = g.AwayTeam?.Name ?? "Unknown",
@@ -420,6 +426,29 @@ namespace RugbyApiApp.MAUI.ViewModels
             finally
             {
                 IsLoading = false;
+            }
+        }
+
+        private async Task ToggleFavoriteAsync(int id)
+        {
+            try
+            {
+                if (SelectedDataType == "Teams")
+                {
+                    await _dataService.ToggleTeamFavoriteAsync(id);
+                    StatusMessage = "Team favorite status updated";
+                    await LoadTeamsAsync();
+                }
+                else if (SelectedDataType == "Leagues")
+                {
+                    await _dataService.ToggleLeagueFavoriteAsync(id);
+                    StatusMessage = "League favorite status updated";
+                    await LoadLeaguesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Error updating favorite: {ex.Message}";
             }
         }
     }

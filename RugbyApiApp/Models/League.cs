@@ -10,6 +10,7 @@
         public string? CountryCode { get; set; }
         public string? CountryFlag { get; set; }
         public bool IsDataComplete { get; set; }
+        public bool IsFavorite { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
     }
