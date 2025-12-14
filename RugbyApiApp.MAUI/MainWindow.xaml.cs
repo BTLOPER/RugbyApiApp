@@ -120,4 +120,29 @@ public partial class MainWindow : Window
             _viewModel.DataViewModel.RefreshCommand.Execute(null);
         }
     }
+
+    private void DataGrid_CellEditEnding(object sender, System.Windows.Controls.DataGridCellEditEndingEventArgs e)
+    {
+        // Handle favorite checkbox changes
+        if (e.Column is System.Windows.Controls.DataGridCheckBoxColumn && e.Column.Header.ToString() == "⭐ Favorite")
+        {
+            try
+            {
+                if (DataGrid.SelectedItem != null)
+                {
+                    var rowData = DataGrid.SelectedItem;
+                    var idProperty = rowData.GetType().GetProperty("Id");
+                    if (idProperty != null)
+                    {
+                        var id = (int)idProperty.GetValue(rowData);
+                        _viewModel?.DataViewModel.ToggleFavoriteCommand.Execute(id);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error toggling favorite: {ex.Message}");
+            }
+        }
+    }
 }

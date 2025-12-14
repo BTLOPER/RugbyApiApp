@@ -6,7 +6,7 @@
         Background="#F5F5F5"
         FontFamily="Segoe UI"
         FontSize="12">
-    
+
     <Window.Resources>
         <!-- Colors -->
         <Color x:Key="PrimaryColor">#512BD4</Color>
@@ -171,7 +171,11 @@
     </Window.Resources>
 
     <Grid Background="{StaticResource BackgroundBrush}">
-        <DockPanel>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="8*"/>
+            <RowDefinition Height="163*"/>
+        </Grid.RowDefinitions>
+        <DockPanel Grid.RowSpan="2">
             <!-- Header -->
             <Border DockPanel.Dock="Top" Background="{StaticResource PrimaryBrush}" Padding="24,16">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -293,7 +297,23 @@
                                 <Button Content="🔄 Refresh" Style="{StaticResource SecondaryButtonStyle}" Click="OnRefreshClicked" Margin="12,0,0,0" Padding="12,8"/>
                             </StackPanel>
                         </Border>
-                        <DataGrid Grid.Row="1" x:Name="DataGrid" ItemsSource="{Binding GridData}" AutoGenerateColumns="True" Style="{StaticResource ModernDataGrid}"/>
+                        <DataGrid Grid.Row="1" x:Name="DataGrid" ItemsSource="{Binding GridData}" AutoGenerateColumns="False" Style="{StaticResource ModernDataGrid}" CellEditEnding="DataGrid_CellEditEnding">
+                            <DataGrid.Columns>
+                                <DataGridCheckBoxColumn Header="⭐ Favorite" Binding="{Binding Favorite}" IsReadOnly="False" Width="100"/>
+                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="60"/>
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True" Width="200"/>
+                                <DataGridTextColumn Header="Code" Binding="{Binding Code}" IsReadOnly="True" Width="100"/>
+                                <DataGridTextColumn Header="Country" Binding="{Binding Country}" IsReadOnly="True" Width="100"/>
+                                <DataGridTextColumn Header="Type" Binding="{Binding Type}" IsReadOnly="True" Width="100"/>
+                                <DataGridTextColumn Header="Year" Binding="{Binding Year}" IsReadOnly="True" Width="100"/>
+                                <DataGridTextColumn Header="Current" Binding="{Binding Current}" IsReadOnly="True" Width="100"/>
+                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" IsReadOnly="True" Width="150"/>
+                                <DataGridTextColumn Header="Home" Binding="{Binding Home}" IsReadOnly="True" Width="150"/>
+                                <DataGridTextColumn Header="Away" Binding="{Binding Away}" IsReadOnly="True" Width="150"/>
+                                <DataGridTextColumn Header="Date" Binding="{Binding Date}" IsReadOnly="True" Width="100"/>
+                                <DataGridTextColumn Header="Venue" Binding="{Binding Venue}" IsReadOnly="True" Width="200"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
                     </Grid>
                 </TabItem>
 

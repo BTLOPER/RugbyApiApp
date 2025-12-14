@@ -573,6 +573,58 @@ namespace RugbyApiApp.Services
 
             return (total, watched, unwatched, averageRating);
         }
+
+        /// <summary>
+        /// Toggle favorite status for a team
+        /// </summary>
+        public async Task<bool> ToggleTeamFavoriteAsync(int teamId)
+        {
+            var team = await _context.Teams.FirstOrDefaultAsync(t => t.Id == teamId);
+            if (team == null)
+                return false;
+
+            team.IsFavorite = !team.IsFavorite;
+            team.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return team.IsFavorite;
+        }
+
+        /// <summary>
+        /// Toggle favorite status for a league
+        /// </summary>
+        public async Task<bool> ToggleLeagueFavoriteAsync(int leagueId)
+        {
+            var league = await _context.Leagues.FirstOrDefaultAsync(l => l.Id == leagueId);
+            if (league == null)
+                return false;
+
+            league.IsFavorite = !league.IsFavorite;
+            league.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return league.IsFavorite;
+        }
+
+        /// <summary>
+        /// Get all favorite teams
+        /// </summary>
+        public async Task<List<Team>> GetFavoriteTeamsAsync()
+        {
+            return await _context.Teams
+                .Where(t => t.IsFavorite)
+                .OrderBy(t => t.Name)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Get all favorite leagues
+        /// </summary>
+        public async Task<List<League>> GetFavoriteLeaguesAsync()
+        {
+            return await _context.Leagues
+                .Where(l => l.IsFavorite)
+                .OrderBy(l => l.Name)
+                .ToListAsync();
+        }
     }
 
     /// <summary>
