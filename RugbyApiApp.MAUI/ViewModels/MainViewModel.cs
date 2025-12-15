@@ -17,6 +17,7 @@ namespace RugbyApiApp.MAUI.ViewModels
         public HomeViewModel HomeViewModel { get; }
         public DataViewModel DataViewModel { get; }
         public SettingsViewModel SettingsViewModel { get; }
+        public WatchViewModel WatchViewModel { get; }
 
         public MainViewModel(DataService dataService, SecretsService secretsService, IConfiguration configuration)
         {
@@ -35,6 +36,7 @@ namespace RugbyApiApp.MAUI.ViewModels
             HomeViewModel = new HomeViewModel(dataService);
             DataViewModel = new DataViewModel(dataService, _apiClient);
             SettingsViewModel = new SettingsViewModel(dataService, secretsService, configuration);
+            WatchViewModel = new WatchViewModel(dataService);
             SettingsViewModel.SetApiClient(_apiClient);
         }
 

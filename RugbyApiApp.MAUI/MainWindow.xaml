@@ -1,6 +1,8 @@
 <Window x:Class="RugbyApiApp.MAUI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:RugbyApiApp.MAUI.Converters"
+        xmlns:iconPacks="clr-namespace:MahApps.Metro.IconPacks;assembly=MahApps.Metro.IconPacks.Material"
         Title="Rugby API Manager" Height="700" Width="1000"
         WindowStartupLocation="CenterScreen"
         Background="#F5F5F5"
@@ -168,6 +170,9 @@
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
         </Style>
+
+        <!-- Rating Star Color Converter -->
+        <local:RatingStarColorConverter x:Key="RatingStarColorConverter"/>
     </Window.Resources>
 
     <Grid Background="{StaticResource BackgroundBrush}">
@@ -179,7 +184,7 @@
             <!-- Header -->
             <Border DockPanel.Dock="Top" Background="{StaticResource PrimaryBrush}" Padding="24,16">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="🏉" FontSize="28" Margin="0,0,12,0"/>
+                    <iconPacks:PackIconMaterial  Kind="Rugby"  Width="32" Height="32" Foreground="White" Margin="0,0,12,0" VerticalAlignment="Center"/>
                     <TextBlock Text="Rugby API Manager" Style="{StaticResource SubHeadingStyle}" Foreground="White" VerticalAlignment="Center"/>
                 </StackPanel>
             </Border>
@@ -187,7 +192,13 @@
             <!-- Content -->
             <TabControl Background="{StaticResource BackgroundBrush}" BorderThickness="0" x:Name="TabControl">
                 <!-- Home Tab -->
-                <TabItem Header="📊 Home" Style="{StaticResource ModernTabItem}" x:Name="HomeTab">
+                <TabItem Style="{StaticResource ModernTabItem}" x:Name="HomeTab">
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <iconPacks:PackIconMaterial Kind="Home"  Width="16" Height="16" Margin="0,0,4,0"/>
+                            <TextBlock Text="Home"/>
+                        </StackPanel>
+                    </TabItem.Header>
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
                         <StackPanel>
                             <!-- Welcome Section -->
@@ -209,7 +220,10 @@
                                 <!-- Countries Card -->
                                 <Border Grid.Row="0" Grid.Column="0" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,0,12,12">
                                     <StackPanel>
-                                        <TextBlock Text="🌍 Countries" Style="{StaticResource SubHeadingStyle}" Margin="0,0,0,12"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                            <iconPacks:PackIconMaterial  Kind="Earth"  Width="24" Height="24" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Countries" Style="{StaticResource SubHeadingStyle}" VerticalAlignment="Center"/>
+                                        </StackPanel>
                                         <TextBlock Text="{Binding CountriesPercent}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}" Margin="0,0,0,8"/>
                                         <ProgressBar Height="8" Background="#E8E8E8" Foreground="{StaticResource PrimaryBrush}" Margin="0,0,0,8" Value="{Binding CountriesProgress}"/>
                                         <TextBlock Text="{Binding CountriesPercent}" Style="{StaticResource BodyStyle}"/>
@@ -219,7 +233,10 @@
                                 <!-- Seasons Card -->
                                 <Border Grid.Row="0" Grid.Column="1" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="20" Margin="12,0,0,12">
                                     <StackPanel>
-                                        <TextBlock Text="📅 Seasons" Style="{StaticResource SubHeadingStyle}" Margin="0,0,0,12"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                            <iconPacks:PackIconMaterial  Kind="Calendar" Width="24" Height="24" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Seasons" Style="{StaticResource SubHeadingStyle}" VerticalAlignment="Center"/>
+                                        </StackPanel>
                                         <TextBlock Text="{Binding SeasonsPercent}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,8"/>
                                         <ProgressBar Height="8" Background="#E8E8E8" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,8" Value="{Binding SeasonsProgress}"/>
                                         <TextBlock Text="{Binding SeasonsPercent}" Style="{StaticResource BodyStyle}"/>
@@ -229,7 +246,10 @@
                                 <!-- Leagues Card -->
                                 <Border Grid.Row="1" Grid.Column="0" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,12,12,12">
                                     <StackPanel>
-                                        <TextBlock Text="🏆 Leagues" Style="{StaticResource SubHeadingStyle}" Margin="0,0,0,12"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                            <iconPacks:PackIconMaterial  Kind="Trophy" Width="24" Height="24" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Leagues" Style="{StaticResource SubHeadingStyle}" VerticalAlignment="Center"/>
+                                        </StackPanel>
                                         <TextBlock Text="{Binding LeaguesPercent}" FontSize="24" FontWeight="Bold" Foreground="#F59E0B" Margin="0,0,0,8"/>
                                         <ProgressBar Height="8" Background="#E8E8E8" Foreground="#F59E0B" Margin="0,0,0,8" Value="{Binding LeaguesProgress}"/>
                                         <TextBlock Text="{Binding LeaguesPercent}" Style="{StaticResource BodyStyle}"/>
@@ -239,7 +259,10 @@
                                 <!-- Teams Card -->
                                 <Border Grid.Row="1" Grid.Column="1" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="20" Margin="12,12,0,12">
                                     <StackPanel>
-                                        <TextBlock Text="🏉 Teams" Style="{StaticResource SubHeadingStyle}" Margin="0,0,0,12"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                            <iconPacks:PackIconMaterial  Kind="AccountGroup" Width="24" Height="24" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Teams" Style="{StaticResource SubHeadingStyle}" VerticalAlignment="Center"/>
+                                        </StackPanel>
                                         <TextBlock Text="{Binding TeamsPercent}" FontSize="24" FontWeight="Bold" Foreground="#8B5CF6" Margin="0,0,0,8"/>
                                         <ProgressBar Height="8" Background="#E8E8E8" Foreground="#8B5CF6" Margin="0,0,0,8" Value="{Binding TeamsProgress}"/>
                                         <TextBlock Text="{Binding TeamsPercent}" Style="{StaticResource BodyStyle}"/>
@@ -249,7 +272,10 @@
                                 <!-- Games Card -->
                                 <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,12,0,0">
                                     <StackPanel>
-                                        <TextBlock Text="🎮 Games" Style="{StaticResource SubHeadingStyle}" Margin="0,0,0,12"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                            <iconPacks:PackIconMaterial  Kind="GamepadVariant" Width="24" Height="24" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Games" Style="{StaticResource SubHeadingStyle}" VerticalAlignment="Center"/>
+                                        </StackPanel>
                                         <TextBlock Text="{Binding GamesPercent}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource SuccessBrush}" Margin="0,0,0,8"/>
                                         <ProgressBar Height="8" Background="#E8E8E8" Foreground="{StaticResource SuccessBrush}" Margin="0,0,0,8" Value="{Binding GamesProgress}"/>
                                         <TextBlock Text="{Binding GamesPercent}" Style="{StaticResource BodyStyle}"/>
@@ -260,16 +286,39 @@
                             <!-- Actions Section -->
                             <TextBlock Text="Quick Actions" Style="{StaticResource SubHeadingStyle}" Margin="0,32,0,16"/>
                             <StackPanel Orientation="Vertical">
-                                <Button Content="📊 View Full Statistics" Style="{StaticResource PrimaryButtonStyle}" Click="OnViewStatisticsClicked" Height="40" Margin="0,0,0,12"/>
-                                <Button Content="📋 Browse Data" Style="{StaticResource PrimaryButtonStyle}" Click="OnBrowseDataClicked" Height="40" Margin="0,0,0,12"/>
-                                <Button Content="🔄 Auto-Fetch All Data" Style="{StaticResource SecondaryButtonStyle}" Click="OnAutoFetchAllDataClicked" Height="40" Margin="0,0,0,12"/>
-                                <Button Content="⚙️ Settings" Style="{StaticResource SecondaryButtonStyle}" Click="OnSettingsClicked" Height="40"/>
+                                <Button Style="{StaticResource PrimaryButtonStyle}" Click="OnViewStatisticsClicked" Height="40" Margin="0,0,0,12">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <iconPacks:PackIconMaterial  Kind="ChartBox" Width="18" Height="18" Foreground="White" Margin="0,0,8,0"/>
+                                        <TextBlock Text="View Full Statistics" Foreground="White" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button Style="{StaticResource PrimaryButtonStyle}" Click="OnBrowseDataClicked" Height="40" Margin="0,0,0,12">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <iconPacks:PackIconMaterial  Kind="FormatListBulleted" Width="18" Height="18" Foreground="White" Margin="0,0,8,0"/>
+                                        <TextBlock Text="Browse Data" Foreground="White" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button Style="{StaticResource SecondaryButtonStyle}" Click="OnAutoFetchAllDataClicked" Height="40" Margin="0,0,0,12">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <iconPacks:PackIconMaterial  Kind="Refresh" Width="18" Height="18" Margin="0,0,8,0"/>
+                                        <TextBlock Text="Auto-Fetch All Data" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button Style="{StaticResource SecondaryButtonStyle}" Click="OnSettingsClicked" Height="40">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <iconPacks:PackIconMaterial  Kind="Cog" Width="18" Height="18" Margin="0,0,8,0"/>
+                                        <TextBlock Text="Settings" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
                             </StackPanel>
 
                             <!-- Info Box -->
                             <Border Background="{StaticResource SecondaryBrush}" CornerRadius="8" Padding="16" Margin="0,32,0,0">
                                 <StackPanel>
-                                    <TextBlock Text="💡 Dashboard Updates" FontWeight="Bold" Margin="0,0,0,8"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                        <iconPacks:PackIconMaterial  Kind="LightbulbOn" Width="18" Height="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Dashboard Updates" FontWeight="Bold" VerticalAlignment="Center"/>
+                                    </StackPanel>
                                     <TextBlock Text="The statistics below update automatically every 5 seconds. Click 'Auto-Fetch All Data' in Settings to populate your database with rugby data from the API." Style="{StaticResource BodyStyle}"/>
                                 </StackPanel>
                             </Border>
@@ -278,7 +327,13 @@
                 </TabItem>
 
                 <!-- Data Tab -->
-                <TabItem Header="📋 Data" Style="{StaticResource ModernTabItem}" x:Name="DataTab">
+                <TabItem Style="{StaticResource ModernTabItem}" x:Name="DataTab">
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <iconPacks:PackIconMaterial  Kind="FormatListBulleted" Width="16" Height="16" Margin="0,0,4,0"/>
+                            <TextBlock Text="Data"/>
+                        </StackPanel>
+                    </TabItem.Header>
                     <Grid Margin="24">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -294,7 +349,12 @@
                                     <ComboBoxItem>Teams</ComboBoxItem>
                                     <ComboBoxItem>Games</ComboBoxItem>
                                 </ComboBox>
-                                <Button Content="🔄 Refresh" Style="{StaticResource SecondaryButtonStyle}" Click="OnRefreshClicked" Margin="12,0,0,0" Padding="12,8"/>
+                                <Button Style="{StaticResource SecondaryButtonStyle}" Click="OnRefreshClicked" Margin="12,0,0,0" Padding="12,8">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <iconPacks:PackIconMaterial  Kind="Refresh" Width="14" Height="14" Margin="0,0,4,0"/>
+                                        <TextBlock Text="Refresh" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
                                 
                                 <!-- Search and Filter Section (only visible for Teams/Leagues) -->
                                 <Separator Width="1" Background="{StaticResource BorderBrush}" Margin="16,0"/>
@@ -302,7 +362,12 @@
                                 <TextBlock Text="Search:" Style="{StaticResource TitleStyle}" VerticalAlignment="Center" Margin="12,0,8,0"/>
                                 <TextBox x:Name="SearchBox" Width="200" Height="36" TextChanged="OnSearchTextChanged" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="12,8" Foreground="{StaticResource TextBrush}"/>
                                 
-                                <CheckBox x:Name="FavoritesCheckBox" Content="⭐ Favorites Only" VerticalAlignment="Center" Margin="16,0,0,0" Checked="OnFavoritesFilterChanged" Unchecked="OnFavoritesFilterChanged" Foreground="{StaticResource TextBrush}"/>
+                                <CheckBox x:Name="FavoritesCheckBox" VerticalAlignment="Center" Margin="16,0,0,0" Checked="OnFavoritesFilterChanged" Unchecked="OnFavoritesFilterChanged" Foreground="{StaticResource TextBrush}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <iconPacks:PackIconMaterial  Kind="Star" Width="14" Height="14" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Favorites Only" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </CheckBox>
                             </StackPanel>
                         </Border>
                         
@@ -331,7 +396,18 @@
                                 <!-- Leagues DataGrid -->
                                 <DataGrid x:Name="LeaguesDataGrid" ItemsSource="{Binding GridData}" AutoGenerateColumns="False" Style="{StaticResource ModernDataGrid}" CellEditEnding="DataGrid_CellEditEnding" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
                                     <DataGrid.Columns>
-                                        <DataGridCheckBoxColumn Header="⭐ Favorite" Binding="{Binding Favorite}" IsReadOnly="False" Width="100"/>
+                                        <DataGridTemplateColumn Header="⭐" Width="50">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding Favorite}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                            <DataGridTemplateColumn.CellEditingTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding Favorite}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellEditingTemplate>
+                                        </DataGridTemplateColumn>
                                         <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="60"/>
                                         <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True" Width="300"/>
                                         <DataGridTextColumn Header="Country" Binding="{Binding Country}" IsReadOnly="True" Width="120"/>
@@ -342,7 +418,18 @@
                                 <!-- Teams DataGrid -->
                                 <DataGrid x:Name="TeamsDataGrid" ItemsSource="{Binding GridData}" AutoGenerateColumns="False" Style="{StaticResource ModernDataGrid}" CellEditEnding="DataGrid_CellEditEnding" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
                                     <DataGrid.Columns>
-                                        <DataGridCheckBoxColumn Header="⭐ Favorite" Binding="{Binding Favorite}" IsReadOnly="False" Width="100"/>
+                                        <DataGridTemplateColumn Header="⭐" Width="50">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding Favorite}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                            <DataGridTemplateColumn.CellEditingTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding Favorite}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellEditingTemplate>
+                                        </DataGridTemplateColumn>
                                         <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="60"/>
                                         <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True" Width="350"/>
                                         <DataGridTextColumn Header="Code" Binding="{Binding Code}" IsReadOnly="True" Width="100"/>
@@ -364,8 +451,286 @@
                     </Grid>
                 </TabItem>
 
+                <!-- Watch Tab -->
+                <TabItem Style="{StaticResource ModernTabItem}" x:Name="WatchTab">
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <iconPacks:PackIconMaterial  Kind="MoviePlay" Width="16" Height="16" Margin="0,0,4,0"/>
+                            <TextBlock Text="Watch"/>
+                        </StackPanel>
+                    </TabItem.Header>
+                    <Grid Margin="24">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.4*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="0.6*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Left Panel: Game List and Filters -->
+                        <Grid Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" VerticalAlignment="Stretch">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <!-- Filter Section -->
+                            <Expander Name="FilterExpander" IsExpanded="False" FontWeight="Bold" Foreground="{StaticResource TextBrush}" Margin="0,0,0,10" Background="{StaticResource BorderBrush}">
+                                <Expander.Header>
+                                    <Grid Width="{Binding ElementName=FilterExpander, Path=ActualWidth}" Margin="0,5,0,0" >
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Orientation="Horizontal" Margin="5,5,0,12" VerticalAlignment="Bottom">
+                                            <iconPacks:PackIconMaterial  Kind="DatabaseSearchOutline" Width="16" Height="16" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Filters" Style="{StaticResource SubHeadingStyle}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <CheckBox Grid.Column="1" IsChecked="{Binding ShowFavoritesOnly}" Foreground="{StaticResource TextBrush}" Margin="0,0,0,12" VerticalAlignment="Bottom">
+                                            <StackPanel Orientation="Horizontal">
+                                                <iconPacks:PackIconMaterial  Kind="Star" Width="14" Height="14" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                                <TextBlock Text="Favorites Only" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </CheckBox>
+                                    </Grid>
+                                </Expander.Header>
+
+                                <Border Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="16" Margin="12,0,12,16">
+                                    <StackPanel>
+                                        
+                                        <TextBlock Text="League:" Style="{StaticResource TitleStyle}" Margin="0,0,0,4"/>
+                                        <ComboBox ItemsSource="{Binding Leagues}" SelectedValuePath="Id" SelectedValue="{Binding SelectedLeagueId}" DisplayMemberPath="Name" Style="{StaticResource ModernComboBox}" Margin="0,0,0,12" Height="36"/>
+                                        <TextBlock Text="Season:" Style="{StaticResource TitleStyle}" Margin="0,0,0,4"/>
+                                        <ComboBox ItemsSource="{Binding Seasons}" SelectedValue="{Binding SelectedSeasonId}" Style="{StaticResource ModernComboBox}" Margin="0,0,0,12" Height="36"/>
+                                        <TextBlock Text="Team:" Style="{StaticResource TitleStyle}" Margin="0,0,0,4"/>
+                                        <ComboBox ItemsSource="{Binding Teams}" SelectedValuePath="Id" SelectedValue="{Binding SelectedTeamId}" DisplayMemberPath="Name" Style="{StaticResource ModernComboBox}" Margin="0,0,0,12" Height="36"/>
+                                        
+                                        <Button Command="{Binding ClearFiltersCommand}" Style="{StaticResource SecondaryButtonStyle}" Padding="12,8">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                <iconPacks:PackIconMaterial  Kind="Close" Width="14" Height="14" Margin="0,0,4,0"/>
+                                                <TextBlock Text="Clear Filters" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <Button Command="{Binding LoadDataCommand}" Style="{StaticResource PrimaryButtonStyle}" Padding="12,8" Margin="0,12,0,0">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                <iconPacks:PackIconMaterial  Kind="Refresh" Width="14" Height="14" Foreground="White" Margin="0,0,4,0"/>
+                                                <TextBlock Text="Load Games" Foreground="White" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </Border>
+                            </Expander>
+                            <!-- Games List -->
+                            <Border Grid.Row="1" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="0" Margin="12,0,12,0">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid>
+                                        <ListBox Grid.Row="0" ItemsSource="{Binding FilteredGames}" SelectedItem="{Binding SelectedGame}" BorderThickness="0">
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Padding="12" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                                                        <StackPanel>
+                                                            <Border Background="{StaticResource BorderBrush}">
+                                                            <TextBlock Text="{Binding LeagueName}" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}" Margin="0,0,0,4" VerticalAlignment="Stretch"/>
+                                                            </Border>
+                                                            <TextBlock Text="{Binding HomeTeamName}" Margin="0,0,0,2"/>
+                                                            <TextBlock Text="vs"/>
+                                                            <TextBlock Text="{Binding AwayTeamName}" Margin="0,2,0,8"/>
+                                                            <TextBlock Text="{Binding Date, StringFormat='yyyy-MM-dd'}" Style="{StaticResource BodyStyle}" Margin="0,0,0,4"/>
+                                                            <TextBlock Text="{Binding VideoStatus}" Style="{StaticResource BodyStyle}" Foreground="{StaticResource AccentBrush}"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                    </Grid>
+                                    <!-- Pagination Controls -->
+                                    <Border Grid.Row="1" Background="#FAFAFA" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Padding="12">
+                                        <StackPanel>
+                                            <!-- Page Size Selection -->
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,12">
+                                                <TextBlock Text="Items per page:" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold"/>
+                                                <ComboBox ItemsSource="{Binding PageSizeOptions}" SelectedValue="{Binding PageSize}" Width="70" Height="28" Style="{StaticResource ModernComboBox}" Padding="8,4"/>
+                                            </StackPanel>
+                                            
+                                            <!-- Navigation Controls -->
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Button Command="{Binding FirstPageCommand}" Style="{StaticResource SecondaryButtonStyle}" Padding="10,6" FontSize="11" Margin="0,0,4,0">
+                                                    <iconPacks:PackIconMaterial  Kind="SkipPrevious" Width="12" Height="12"/>
+                                                </Button>
+                                                <Button Command="{Binding PreviousPageCommand}" Style="{StaticResource SecondaryButtonStyle}" Padding="10,6" FontSize="11" Margin="0,0,4,0">
+                                                    <iconPacks:PackIconMaterial  Kind="ChevronLeft" Width="12" Height="12"/>
+                                                </Button>
+                                                
+                                                <Separator Width="1" Background="{StaticResource BorderBrush}" Margin="8,0"/>
+                                                
+                                                <TextBlock Text="Go to page:" VerticalAlignment="Center" Margin="8,0,4,0" FontWeight="SemiBold" FontSize="11"/>
+                                                <ComboBox ItemsSource="{Binding PageNumbers}" SelectedValue="{Binding CurrentPage}" Width="60" Height="28" Style="{StaticResource ModernComboBox}" Padding="8,4" Margin="0,0,4,0"/>
+                                                
+                                                <Separator Width="1" Background="{StaticResource BorderBrush}" Margin="8,0"/>
+                                                
+                                                <Button Command="{Binding NextPageCommand}" Style="{StaticResource SecondaryButtonStyle}" Padding="10,6" FontSize="11" Margin="8,0,4,0">
+                                                    <iconPacks:PackIconMaterial  Kind="ChevronRight" Width="12" Height="12"/>
+                                                </Button>
+                                                <Button Command="{Binding LastPageCommand}" Style="{StaticResource SecondaryButtonStyle}" Padding="10,6" FontSize="11">
+                                                    <iconPacks:PackIconMaterial  Kind="SkipNext" Width="12" Height="12"/>
+                                                </Button>
+                                                
+                                                <Separator Width="1" Background="{StaticResource BorderBrush}" Margin="8,0"/>
+                                                
+                                                <TextBlock VerticalAlignment="Center" Margin="8,0,0,0" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}">
+                                                    <Run Text="{Binding CurrentPage, StringFormat='Page {0}'}"/><Run Text=" of "/><Run Text="{Binding TotalPages}"/>
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                    
+                                    <!-- Status Message -->
+                                    <Border Grid.Row="2" Background="#FAFAFA" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Padding="12">
+                                        <TextBlock Text="{Binding StatusMessage}" Style="{StaticResource BodyStyle}"/>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </Grid>
+
+                        <!-- Splitter -->
+                        <GridSplitter Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Width="4" HorizontalAlignment="Center" Background="{StaticResource BorderBrush}"/>
+
+                        <!-- Right Panel: Video List and Details -->
+                        <StackPanel Grid.Column="2" Grid.Row="0" Grid.RowSpan="2">
+                            <Border Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="16" Margin="12,0,0,16">
+                                <StackPanel>
+                                    <TextBlock Text="Videos" Style="{StaticResource SubHeadingStyle}" Margin="0,0,0,12"/>
+                                    <Button Style="{StaticResource PrimaryButtonStyle}" Padding="12,8" Margin="0,0,0,12" Command="{Binding AddVideoCommand}">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                            <iconPacks:PackIconMaterial  Kind="Plus" Width="14" Height="14" Foreground="White" Margin="0,0,4,0"/>
+                                            <TextBlock Text="Add Video" Foreground="White" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{StaticResource SecondaryButtonStyle}" Padding="12,8" Margin="0,0,0,12" Command="{Binding EditVideoCommand}">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                            <iconPacks:PackIconMaterial  Kind="Pencil" Width="14" Height="14" Margin="0,0,4,0"/>
+                                            <TextBlock Text="Edit Video" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{StaticResource DangerButtonStyle}" Padding="12,8" Command="{Binding DeleteVideoCommand}">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                            <iconPacks:PackIconMaterial  Kind="TrashCan" Width="14" Height="14" Foreground="White" Margin="0,0,4,0"/>
+                                            <TextBlock Text="Delete Video" Foreground="White" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Videos List -->
+                            <Border Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="0" Margin="12,0,0,0">
+                                <DataGrid ItemsSource="{Binding SelectedGameVideos}" AutoGenerateColumns="False" Style="{StaticResource ModernDataGrid}">
+                                    <DataGrid.Columns>
+                                        <DataGridTemplateColumn Header="👁️" Width="40">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding IsWatched}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                            <DataGridTemplateColumn.CellEditingTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding IsWatched}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellEditingTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Header="⭐" Width="40">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding IsFavorite}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                            <DataGridTemplateColumn.CellEditingTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding IsFavorite}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellEditingTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTextColumn Header="Title" Binding="{Binding Title}" IsReadOnly="True" Width="200"/>
+                                        <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat='yyyy-MM-dd'}" IsReadOnly="True" Width="80"/>
+                                        <DataGridTemplateColumn Header="Rating" Width="140">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                        <!-- Star 1 -->
+                                                        <Button Background="Transparent" BorderThickness="0" Padding="3" ToolTip="Rate 1 star" Click="RatingStar_Click" Tag="1">
+                                                            <Button.Foreground>
+                                                                <MultiBinding Converter="{StaticResource RatingStarColorConverter}">
+                                                                    <Binding Path="Rating" />
+                                                                    <Binding Source="1" />
+                                                                </MultiBinding>
+                                                            </Button.Foreground>
+                                                            <iconPacks:PackIconMaterial Kind="Star" Width="18" Height="18" Margin="0,0,1,0"/>
+                                                        </Button>
+                                                        <!-- Star 2 -->
+                                                        <Button Background="Transparent" BorderThickness="0" Padding="3" ToolTip="Rate 2 stars" Click="RatingStar_Click" Tag="2">
+                                                            <Button.Foreground>
+                                                                <MultiBinding Converter="{StaticResource RatingStarColorConverter}">
+                                                                    <Binding Path="Rating" />
+                                                                    <Binding Source="2" />
+                                                                </MultiBinding>
+                                                            </Button.Foreground>
+                                                            <iconPacks:PackIconMaterial Kind="Star" Width="18" Height="18" Margin="0,0,1,0"/>
+                                                        </Button>
+                                                        <!-- Star 3 -->
+                                                        <Button Background="Transparent" BorderThickness="0" Padding="3" ToolTip="Rate 3 stars" Click="RatingStar_Click" Tag="3">
+                                                            <Button.Foreground>
+                                                                <MultiBinding Converter="{StaticResource RatingStarColorConverter}">
+                                                                    <Binding Path="Rating" />
+                                                                    <Binding Source="3" />
+                                                                </MultiBinding>
+                                                            </Button.Foreground>
+                                                            <iconPacks:PackIconMaterial Kind="Star" Width="18" Height="18" Margin="0,0,1,0"/>
+                                                        </Button>
+                                                        <!-- Star 4 -->
+                                                        <Button Background="Transparent" BorderThickness="0" Padding="3" ToolTip="Rate 4 stars" Click="RatingStar_Click" Tag="4">
+                                                            <Button.Foreground>
+                                                                <MultiBinding Converter="{StaticResource RatingStarColorConverter}">
+                                                                    <Binding Path="Rating" />
+                                                                    <Binding Source="4" />
+                                                                </MultiBinding>
+                                                            </Button.Foreground>
+                                                            <iconPacks:PackIconMaterial Kind="Star" Width="18" Height="18" Margin="0,0,1,0"/>
+                                                        </Button>
+                                                        <!-- Star 5 -->
+                                                        <Button Background="Transparent" BorderThickness="0" Padding="3" ToolTip="Rate 5 stars" Click="RatingStar_Click" Tag="5">
+                                                            <Button.Foreground>
+                                                                <MultiBinding Converter="{StaticResource RatingStarColorConverter}">
+                                                                    <Binding Path="Rating" />
+                                                                    <Binding Source="5" />
+                                                                </MultiBinding>
+                                                            </Button.Foreground>
+                                                            <iconPacks:PackIconMaterial Kind="Star" Width="18" Height="18" Margin="0,0,1,0"/>
+                                                        </Button>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
+
                 <!-- Settings Tab -->
-                <TabItem Header="⚙️ Settings" Style="{StaticResource ModernTabItem}" x:Name="SettingsTab">
+                <TabItem Style="{StaticResource ModernTabItem}" x:Name="SettingsTab">
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <iconPacks:PackIconMaterial  Kind="Cog" Width="16" Height="16" Margin="0,0,4,0"/>
+                            <TextBlock Text="Settings"/>
+                        </StackPanel>
+                    </TabItem.Header>
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
                         <StackPanel MaxWidth="600">
                             <TextBlock Text="Settings" Style="{StaticResource SubHeadingStyle}" Margin="0,0,0,24"/>
@@ -374,18 +739,48 @@
                                     <TextBlock Text="API Key (from api-sports.io)" Style="{StaticResource TitleStyle}" Margin="0,0,0,8"/>
                                     <TextBox x:Name="ApiKeyBox" Margin="0,0,0,12" Height="36" Text="{Binding ApiKey, UpdateSourceTrigger=PropertyChanged}" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="12,8" FontSize="12" Foreground="{StaticResource TextBrush}"/>
                                     <StackPanel Orientation="Horizontal">
-                                        <Button Content="💾 Save API Key" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding SaveApiKeyCommand}" Padding="16,10" Margin="0,0,8,0"/>
-                                        <Button Content="🔑 Clear API Key" Style="{StaticResource DangerButtonStyle}" Command="{Binding ClearApiKeyCommand}" Padding="16,10" Margin="0,0,8,0"/>
-                                        <Button Content="🧪 Test API Key" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding TestApiKeyCommand}" Padding="16,10"/>
+                                        <Button Style="{StaticResource PrimaryButtonStyle}" Command="{Binding SaveApiKeyCommand}" Padding="16,10" Margin="0,0,8,0">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                <iconPacks:PackIconMaterial  Kind="ContentSave" Width="14" Height="14" Foreground="White" Margin="0,0,4,0"/>
+                                                <TextBlock Text="Save API Key" Foreground="White" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <Button Style="{StaticResource DangerButtonStyle}" Command="{Binding ClearApiKeyCommand}" Padding="16,10" Margin="0,0,8,0">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                <iconPacks:PackIconMaterial  Kind="Key" Width="14" Height="14" Foreground="White" Margin="0,0,4,0"/>
+                                                <TextBlock Text="Clear API Key" Foreground="White" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding TestApiKeyCommand}" Padding="16,10">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                <iconPacks:PackIconMaterial  Kind="Beaker" Width="14" Height="14" Margin="0,0,4,0"/>
+                                                <TextBlock Text="Test API Key" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
                                     </StackPanel>
                                     <TextBlock Text="{Binding StatusMessage}" Style="{StaticResource BodyStyle}" Margin="0,12,0,0" TextWrapping="Wrap" Foreground="{StaticResource TextBrush}"/>
                                 </StackPanel>
                             </GroupBox>
                             <GroupBox Header="Database" Style="{StaticResource ModernGroupBox}" Margin="0,0,0,16">
                                 <StackPanel>
-                                    <Button Content="🔄 Auto-Fetch All Data" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding AutoFetchAllDataCommand}" Height="40" Margin="0,0,0,8"/>
-                                    <Button Content="📂 Show Database Path" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ShowDatabasePathCommand}" Height="40" Margin="0,0,0,8"/>
-                                    <Button Content="🗑️ Clear All Data" Style="{StaticResource DangerButtonStyle}" Command="{Binding ClearAllDataCommand}" Height="40"/>
+                                    <Button Style="{StaticResource PrimaryButtonStyle}" Command="{Binding AutoFetchAllDataCommand}" Height="40" Margin="0,0,0,8">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                            <iconPacks:PackIconMaterial  Kind="Refresh" Width="16" Height="16" Foreground="White" Margin="0,0,8,0"/>
+                                            <TextBlock Text="Auto-Fetch All Data" Foreground="White" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ShowDatabasePathCommand}" Height="40" Margin="0,0,0,8">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                            <iconPacks:PackIconMaterial  Kind="FolderOpen" Width="16" Height="16" Margin="0,0,8,0"/>
+                                            <TextBlock Text="Show Database Path" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{StaticResource DangerButtonStyle}" Command="{Binding ClearAllDataCommand}" Height="40">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                            <iconPacks:PackIconMaterial  Kind="TrashCan" Width="16" Height="16" Foreground="White" Margin="0,0,8,0"/>
+                                            <TextBlock Text="Clear All Data" Foreground="White" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
                                 </StackPanel>
                             </GroupBox>
                             <GroupBox Header="About" Style="{StaticResource ModernGroupBox}">

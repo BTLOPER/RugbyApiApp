@@ -17,6 +17,7 @@ namespace RugbyApiApp.Data
             string dbPath = GetDatabasePath();
             string connectionString = $"Data Source={dbPath}";
             optionsBuilder.UseSqlite(connectionString);
+            optionsBuilder.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
