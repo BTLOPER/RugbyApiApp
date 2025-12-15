@@ -1,4 +1,6 @@
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 using Microsoft.Extensions.Configuration;
 using RugbyApiApp.Data;
 using RugbyApiApp.MAUI.ViewModels;
@@ -31,13 +33,41 @@ public partial class MainWindow : Window
         // Set up data contexts for individual tabs
         HomeTab.DataContext = _viewModel.HomeViewModel;
         DataTab.DataContext = _viewModel.DataViewModel;
+        WatchTab.DataContext = _viewModel.WatchViewModel;
         SettingsTab.DataContext = _viewModel.SettingsViewModel;
+
+        // Load initial data for Watch tab (fire and forget with error handling)
+        _ = InitializeWatchTabAsync();
+    }
+
+    private async Task InitializeWatchTabAsync()
+    {
+        try
+        {
+            if (_viewModel?.WatchViewModel != null)
+            {
+                await _viewModel.WatchViewModel.LoadInitialDataAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error initializing Watch tab: {ex.Message}");
+        }
     }
 
     protected override void OnClosed(EventArgs e)
     {
         _viewModel?.Cleanup();
         base.OnClosed(e);
+    }
+
+    /// <summary>
+    /// Helper method to get the appropriate star icon based on position and rating
+    /// </summary>
+    private static string GetStarIcon(int position, int? rating)
+    {
+        if (rating == null) return "StarOutline";
+        return position <= rating ? "Star" : "StarOutline";
     }
 
     // Navigation handlers
@@ -258,6 +288,134 @@ public partial class MainWindow : Window
 
             // Update the GridData with filtered results
             _viewModel.DataViewModel.GridData = filteredData;
+        }
+    }
+
+    // Watch tab handlers
+    private void OnAddVideoClicked(object sender, RoutedEventArgs e)
+    {
+        if (_viewModel?.WatchViewModel == null)
+        {
+            MessageBox.Show("Please select a game first.", "No Game Selected", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        var selectedGame = _viewModel.WatchViewModel.SelectedGame;
+        if (selectedGame == null)
+        {
+            MessageBox.Show("Please select a game first.", "No Game Selected", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        var window = new Views.AddEditVideoWindow(
+            selectedGame.GameId,
+            selectedGame.HomeTeamName,
+            selectedGame.AwayTeamName,
+            selectedGame.Date ?? DateTime.Now
+        );
+        window.Owner = this;
+        
+        if (window.ShowDialog() == true)
+        {
+            // Refresh the videos list
+            _viewModel.WatchViewModel.SelectedGame = null;
+            _viewModel.WatchViewModel.SelectedGame = selectedGame;
+        }
+    }
+
+    private void OnEditVideoClicked(object sender, RoutedEventArgs e)
+    {
+        if (_viewModel?.WatchViewModel == null)
+        {
+            MessageBox.Show("Please select a video to edit.", "No Video Selected", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        var videos = _viewModel.WatchViewModel.SelectedGameVideos;
+        if (videos == null || videos.Count == 0)
+        {
+            MessageBox.Show("No videos available to edit.", "No Videos", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        MessageBox.Show("Please select a video from the list to edit.", "Select Video", MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+
+    private void OnDeleteVideoClicked(object sender, RoutedEventArgs e)
+    {
+        var videos = _viewModel?.WatchViewModel?.SelectedGameVideos;
+        if (videos == null || videos.Count == 0)
+        {
+            MessageBox.Show("No videos available to delete.", "No Videos", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        MessageBox.Show("Please select a video from the list to delete.", "Select Video", MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+
+    private void RatingStar_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            if (sender is not Button button)
+                return;
+
+            if (!int.TryParse(button.Tag?.ToString(), out int rating))
+                return;
+
+            // Get the parent DataGrid
+            var dataGrid = FindParentDataGrid(button);
+            if (dataGrid == null)
+                return;
+
+            // Get the data context of the clicked row (the VideoItem)
+            var dataContext = button.DataContext;
+            if (dataContext is RugbyApiApp.MAUI.ViewModels.VideoItem video)
+            {
+                // Update the rating
+                _ = UpdateVideoRatingAsync(video.Id, rating);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error in RatingStar_Click: {ex.Message}");
+        }
+
+        e.Handled = true;
+    }
+
+    private DataGrid? FindParentDataGrid(DependencyObject? element)
+    {
+        if (element == null)
+            return null;
+
+        if (element is DataGrid dg)
+            return dg;
+
+        return FindParentDataGrid(VisualTreeHelper.GetParent(element));
+    }
+
+    private async Task UpdateVideoRatingAsync(int videoId, int rating)
+    {
+        try
+        {
+            if (_viewModel?.WatchViewModel != null)
+            {
+                await _viewModel.WatchViewModel.UpdateVideoRatingAsync(videoId, rating);
+
+                // Refresh the selected game's videos
+                var selectedGame = _viewModel.WatchViewModel.SelectedGame;
+                if (selectedGame != null)
+                {
+                    // Trigger the property changed to refresh bindings
+                    _viewModel.WatchViewModel.SelectedGame = null;
+                    _viewModel.WatchViewModel.SelectedGame = selectedGame;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error updating rating: {ex.Message}");
         }
     }
 }

@@ -439,16 +439,20 @@ namespace RugbyApiApp.Services
         /// <summary>
         /// Add or update a video for a game
         /// </summary>
-        public async Task<Video> UpsertVideoAsync(int videoId, int gameId, string? url, int? lengthSeconds, bool watched = false, int? rating = null)
+        public async Task<Video> UpsertVideoAsync(int videoId, int gameId, string? title, string? url, string? description, int? lengthSeconds, DateTime? date, bool watched = false, bool isFavorite = false, int? rating = null)
         {
             var existingVideo = await _context.Videos.FirstOrDefaultAsync(v => v.Id == videoId);
 
             if (existingVideo != null)
             {
                 existingVideo.GameId = gameId;
+                existingVideo.Title = title ?? existingVideo.Title;
                 existingVideo.Url = url ?? existingVideo.Url;
+                existingVideo.Description = description ?? existingVideo.Description;
                 existingVideo.LengthSeconds = lengthSeconds ?? existingVideo.LengthSeconds;
+                existingVideo.Date = date ?? existingVideo.Date;
                 existingVideo.Watched = watched;
+                existingVideo.IsFavorite = isFavorite;
                 existingVideo.Rating = rating ?? existingVideo.Rating;
                 existingVideo.UpdatedAt = DateTime.UtcNow;
             }
@@ -458,9 +462,13 @@ namespace RugbyApiApp.Services
                 {
                     Id = videoId,
                     GameId = gameId,
+                    Title = title,
                     Url = url,
+                    Description = description,
                     LengthSeconds = lengthSeconds,
+                    Date = date,
                     Watched = watched,
+                    IsFavorite = isFavorite,
                     Rating = rating,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
@@ -489,6 +497,35 @@ namespace RugbyApiApp.Services
         public async Task<Video?> GetVideoByIdAsync(int videoId)
         {
             return await _context.Videos.FirstOrDefaultAsync(v => v.Id == videoId);
+        }
+
+        /// <summary>
+        /// Get a specific video by ID (alias method)
+        /// </summary>
+        public async Task<Video?> GetVideoAsync(int videoId)
+        {
+            return await _context.Videos.FirstOrDefaultAsync(v => v.Id == videoId);
+        }
+
+        /// <summary>
+        /// Add a new video to the database
+        /// </summary>
+        public async Task<Video> AddVideoAsync(Video video)
+        {
+            _context.Videos.Add(video);
+            await _context.SaveChangesAsync();
+            return video;
+        }
+
+        /// <summary>
+        /// Update an existing video in the database
+        /// </summary>
+        public async Task<Video> UpdateVideoAsync(Video video)
+        {
+            video.UpdatedAt = DateTime.UtcNow;
+            _context.Videos.Update(video);
+            await _context.SaveChangesAsync();
+            return video;
         }
 
         /// <summary>
@@ -546,35 +583,6 @@ namespace RugbyApiApp.Services
         }
 
         /// <summary>
-        /// Delete a video
-        /// </summary>
-        public async Task<bool> DeleteVideoAsync(int videoId)
-        {
-            var video = await _context.Videos.FirstOrDefaultAsync(v => v.Id == videoId);
-            if (video == null)
-                return false;
-
-            _context.Videos.Remove(video);
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-        /// <summary>
-        /// Get video statistics
-        /// </summary>
-        public async Task<(int Total, int Watched, int Unwatched, double AverageRating)> GetVideoStatsAsync()
-        {
-            var videos = await _context.Videos.ToListAsync();
-            var total = videos.Count;
-            var watched = videos.Count(v => v.Watched);
-            var unwatched = total - watched;
-            var ratedVideos = videos.Where(v => v.Rating.HasValue).ToList();
-            var averageRating = ratedVideos.Any() ? ratedVideos.Average(v => v.Rating!.Value) : 0;
-
-            return (total, watched, unwatched, averageRating);
-        }
-
-        /// <summary>
         /// Toggle favorite status for a team
         /// </summary>
         public async Task<bool> ToggleTeamFavoriteAsync(int teamId)
@@ -605,25 +613,92 @@ namespace RugbyApiApp.Services
         }
 
         /// <summary>
-        /// Get all favorite teams
+        /// Toggle favorite status for a video
         /// </summary>
-        public async Task<List<Team>> GetFavoriteTeamsAsync()
+        public async Task<bool> ToggleVideoFavoriteAsync(int videoId)
         {
-            return await _context.Teams
-                .Where(t => t.IsFavorite)
-                .OrderBy(t => t.Name)
-                .ToListAsync();
+            var video = await _context.Videos.FirstOrDefaultAsync(v => v.Id == videoId);
+            if (video == null)
+                return false;
+
+            video.IsFavorite = !video.IsFavorite;
+            video.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return video.IsFavorite;
         }
 
         /// <summary>
-        /// Get all favorite leagues
+        /// Set watched status for a video
         /// </summary>
-        public async Task<List<League>> GetFavoriteLeaguesAsync()
+        public async Task<bool> SetVideoWatchedAsync(int videoId, bool watched)
         {
-            return await _context.Leagues
-                .Where(l => l.IsFavorite)
-                .OrderBy(l => l.Name)
-                .ToListAsync();
+            var video = await _context.Videos.FirstOrDefaultAsync(v => v.Id == videoId);
+            if (video == null)
+                return false;
+
+            video.Watched = watched;
+            video.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        /// <summary>
+        /// Set rating for a video
+        /// </summary>
+        public async Task<bool> SetVideoRatingAsync(int videoId, int? rating)
+        {
+            var video = await _context.Videos.FirstOrDefaultAsync(v => v.Id == videoId);
+            if (video == null)
+                return false;
+
+            video.Rating = rating.HasValue ? Math.Clamp(rating.Value, 1, 10) : null;
+            video.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        /// <summary>
+        /// Delete a video by ID
+        /// </summary>
+        public async Task<bool> DeleteVideoByIdAsync(int videoId)
+        {
+            var video = await _context.Videos.FirstOrDefaultAsync(v => v.Id == videoId);
+            if (video == null)
+                return false;
+
+            _context.Videos.Remove(video);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        /// <summary>
+        /// Get video statistics
+        /// </summary>
+        public async Task<(int Total, int Watched, int Unwatched, double AverageRating)> GetVideoStatsAsync()
+        {
+            var videos = await _context.Videos.ToListAsync();
+            var total = videos.Count;
+            var watched = videos.Count(v => v.Watched);
+            var unwatched = total - watched;
+            var ratedVideos = videos.Where(v => v.Rating.HasValue).ToList();
+            var averageRating = ratedVideos.Any() ? ratedVideos.Average(v => v.Rating!.Value) : 0;
+
+            return (total, watched, unwatched, averageRating);
+        }
+
+        /// <summary>
+        /// Set favorite status for a game
+        /// </summary>
+        public async Task<bool> SetGameFavoriteAsync(int gameId, bool isFavorite)
+        {
+            var game = await _context.Games.FirstOrDefaultAsync(g => g.Id == gameId);
+            if (game == null)
+                return false;
+
+            game.IsFavorite = isFavorite;
+            game.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 

@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".mcp.json" />
+  </Folder>
   <Project Path="RugbyApiApp.Console/RugbyApiApp.Console.csproj" />
   <Project Path="RugbyApiApp.MAUI/RugbyApiApp.MAUI.csproj" />
   <Project Path="RugbyApiApp/RugbyApiApp.csproj" />

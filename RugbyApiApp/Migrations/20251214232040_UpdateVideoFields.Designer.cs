@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RugbyApiApp.Data;
 
@@ -10,9 +11,11 @@ using RugbyApiApp.Data;
 namespace RugbyApiApp.Migrations
 {
     [DbContext(typeof(RugbyDbContext))]
-    partial class RugbyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251214232040_UpdateVideoFields")]
+    partial class UpdateVideoFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.1");
@@ -71,9 +74,6 @@ namespace RugbyApiApp.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("IsDataComplete")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsFavorite")
                         .HasColumnType("INTEGER");
 
                     b.Property<int?>("LeagueId")
