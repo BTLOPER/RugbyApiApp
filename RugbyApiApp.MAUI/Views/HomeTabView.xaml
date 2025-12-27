@@ -1,0 +1,108 @@
+<UserControl x:Class="RugbyApiApp.MAUI.Views.HomeTabView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:iconPacks="clr-namespace:MahApps.Metro.IconPacks;assembly=MahApps.Metro.IconPacks.Material">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Resources/SharedResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
+        <StackPanel>
+            <!-- Welcome Section -->
+            <TextBlock Text="Rugby Data Dashboard" Style="{StaticResource HeadingStyle}" Margin="0,0,0,8"/>
+            <TextBlock Text="Real-time statistics of your rugby database" Style="{StaticResource BodyStyle}" Margin="0,0,0,32"/>
+
+            <!-- Data Overview Grid -->
+            <Grid Margin="0,0,0,24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Countries Card -->
+                <Border Grid.Row="0" Grid.Column="0" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,0,12,12">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <iconPacks:PackIconMaterial  Kind="Earth"  Width="24" Height="24" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Countries" Style="{StaticResource SubHeadingStyle}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Text="{Binding CountriesPercent}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}" Margin="0,0,0,8"/>
+                        <ProgressBar Height="8" Background="#E8E8E8" Foreground="{StaticResource PrimaryBrush}" Margin="0,0,0,8" Value="{Binding CountriesProgress}"/>
+                        <TextBlock Text="{Binding CountriesPercent}" Style="{StaticResource BodyStyle}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Seasons Card -->
+                <Border Grid.Row="0" Grid.Column="1" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="20" Margin="12,0,0,12">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <iconPacks:PackIconMaterial  Kind="Calendar" Width="24" Height="24" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Seasons" Style="{StaticResource SubHeadingStyle}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Text="{Binding SeasonsPercent}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,8"/>
+                        <ProgressBar Height="8" Background="#E8E8E8" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,8" Value="{Binding SeasonsProgress}"/>
+                        <TextBlock Text="{Binding SeasonsPercent}" Style="{StaticResource BodyStyle}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Leagues Card -->
+                <Border Grid.Row="1" Grid.Column="0" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,12,12,12">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <iconPacks:PackIconMaterial  Kind="Trophy" Width="24" Height="24" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Leagues" Style="{StaticResource SubHeadingStyle}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Text="{Binding LeaguesPercent}" FontSize="24" FontWeight="Bold" Foreground="#F59E0B" Margin="0,0,0,8"/>
+                        <ProgressBar Height="8" Background="#E8E8E8" Foreground="#F59E0B" Margin="0,0,0,8" Value="{Binding LeaguesProgress}"/>
+                        <TextBlock Text="{Binding LeaguesPercent}" Style="{StaticResource BodyStyle}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Teams Card -->
+                <Border Grid.Row="1" Grid.Column="1" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="20" Margin="12,12,0,12">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <iconPacks:PackIconMaterial  Kind="AccountGroup" Width="24" Height="24" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Teams" Style="{StaticResource SubHeadingStyle}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Text="{Binding TeamsPercent}" FontSize="24" FontWeight="Bold" Foreground="#8B5CF6" Margin="0,0,0,8"/>
+                        <ProgressBar Height="8" Background="#E8E8E8" Foreground="#8B5CF6" Margin="0,0,0,8" Value="{Binding TeamsProgress}"/>
+                        <TextBlock Text="{Binding TeamsPercent}" Style="{StaticResource BodyStyle}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Games Card -->
+                <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,12,0,0">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <iconPacks:PackIconMaterial  Kind="GamepadVariant" Width="24" Height="24" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Games" Style="{StaticResource SubHeadingStyle}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Text="{Binding GamesPercent}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource SuccessBrush}" Margin="0,0,0,8"/>
+                        <ProgressBar Height="8" Background="#E8E8E8" Foreground="{StaticResource SuccessBrush}" Margin="0,0,0,8" Value="{Binding GamesProgress}"/>
+                        <TextBlock Text="{Binding GamesPercent}" Style="{StaticResource BodyStyle}"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Info Box -->
+            <Border Background="{StaticResource SecondaryBrush}" CornerRadius="8" Padding="16" Margin="0,32,0,0">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <iconPacks:PackIconMaterial  Kind="LightbulbOn" Width="18" Height="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Dashboard Updates" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock Text="The statistics below update automatically every 5 seconds. Click 'Auto-Fetch All Data' in Settings to populate your database with rugby data from the API." Style="{StaticResource BodyStyle}"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

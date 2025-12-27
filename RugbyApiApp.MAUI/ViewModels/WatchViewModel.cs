@@ -4,6 +4,8 @@ using RugbyApiApp.Models;
 using RugbyApiApp.Services;
 using RugbyApiApp.MAUI.Services;
 using RugbyApiApp.MAUI.Views;
+using RugbyApiApp.YouTubeApi;
+using Microsoft.Extensions.Configuration;
 
 namespace RugbyApiApp.MAUI.ViewModels
 {
@@ -14,6 +16,7 @@ namespace RugbyApiApp.MAUI.ViewModels
     {
         private readonly DataService _dataService;
         private readonly IVideoWindowService _videoWindowService;
+        private readonly YoutubeVideoService? _youtubeService;
         private List<int> _pageSizeOptions = new() { 10, 20, 50 };
         
         private List<Game> _allGames = new();
@@ -31,12 +34,22 @@ namespace RugbyApiApp.MAUI.ViewModels
         private bool _showFavoritesOnly;
         private GameVideoItem? _selectedGame;
         private List<VideoItem> _selectedGameVideos = new();
+        private List<YoutubeSearchResult> _youtubeSearchResults = new();
+        private bool _isSearching;
+        private string _youtubeStatusMessage = "";
+        private CancellationTokenSource? _searchCancellationTokenSource;
         
         private int _pageSize = 20;
         private int _currentPage = 1;
         private int _totalGames = 0;
         private int _totalPages = 0;
         private string _statusMessage = "";
+
+        // YouTube Search Filters
+        private string _youTubeMinDuration = "";
+        private string _youTubeMaxDuration = "";
+        private string _youTubeSelectedDefinition = "any";
+        private string _youTubeSelectedLeague = "any";
 
         public List<int> PageSizeOptions
         {
@@ -188,10 +201,65 @@ namespace RugbyApiApp.MAUI.ViewModels
             set => SetProperty(ref _selectedGameVideos, value);
         }
 
+        public List<YoutubeSearchResult> YouTubeSearchResults
+        {
+            get => _youtubeSearchResults;
+            set => SetProperty(ref _youtubeSearchResults, value);
+        }
+
+        public bool IsSearching
+        {
+            get => _isSearching;
+            set => SetProperty(ref _isSearching, value);
+        }
+
+        public string YouTubeStatusMessage
+        {
+            get => _youtubeStatusMessage;
+            set => SetProperty(ref _youtubeStatusMessage, value);
+        }
+
         public string StatusMessage
         {
             get => _statusMessage;
             set => SetProperty(ref _statusMessage, value);
+        }
+
+        // YouTube Search Filters
+        public string YouTubeMinDuration
+        {
+            get => _youTubeMinDuration;
+            set => SetProperty(ref _youTubeMinDuration, value);
+        }
+
+        public string YouTubeMaxDuration
+        {
+            get => _youTubeMaxDuration;
+            set => SetProperty(ref _youTubeMaxDuration, value);
+        }
+
+        public string YouTubeSelectedDefinition
+        {
+            get => _youTubeSelectedDefinition;
+            set => SetProperty(ref _youTubeSelectedDefinition, value);
+        }
+
+        public string YouTubeSelectedLeague
+        {
+            get => _youTubeSelectedLeague;
+            set => SetProperty(ref _youTubeSelectedLeague, value);
+        }
+
+        public List<string> YouTubeDefinitionOptions { get; } = new()
+        {
+            "any",
+            "standard",
+            "high"
+        };
+
+        public List<string> YouTubeLeagueOptions
+        {
+            get => _filteredLeagues.Select(l => l.Name).Prepend("any").Distinct().ToList();
         }
 
         public ICommand LoadDataCommand { get; }
@@ -206,16 +274,21 @@ namespace RugbyApiApp.MAUI.ViewModels
         public ICommand ToggleFavoriteCommand { get; }
         public ICommand ToggleWatchedCommand { get; }
         public ICommand SetRatingCommand { get; }
+        public ICommand SearchYouTubeCommand { get; }
+        public ICommand CancelSearchCommand { get; }
+        public ICommand AddYouTubeVideoCommand { get; }
 
         public WatchViewModel(DataService dataService)
-            : this(dataService, new VideoWindowService())
+            : this(dataService, new VideoWindowService(), null as YoutubeVideoService)
         {
         }
 
-        public WatchViewModel(DataService dataService, IVideoWindowService videoWindowService)
+        public WatchViewModel(DataService dataService, IVideoWindowService videoWindowService, YoutubeVideoService? youtubeService)
         {
             _dataService = dataService;
             _videoWindowService = videoWindowService;
+            _youtubeService = youtubeService;
+            
             LoadDataCommand = new AsyncRelayCommand(async _ => await LoadInitialDataAsync());
             ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
             FirstPageCommand = new RelayCommand(_ => CurrentPage = 1, _ => _currentPage > 1);
@@ -228,6 +301,12 @@ namespace RugbyApiApp.MAUI.ViewModels
             ToggleFavoriteCommand = new RelayCommand<GameVideoItem>(async gameVideo => await ToggleFavoriteAsync(gameVideo), gameVideo => gameVideo != null);
             ToggleWatchedCommand = new RelayCommand<VideoItem>(async video => await ToggleWatchedAsync(video), video => video != null);
             SetRatingCommand = new RelayCommand<int>(async rating => await SetRatingAsync(rating), rating => SelectedGame != null);
+            
+            // SearchYouTubeCommand - Always enabled for execution, checks conditions in the method
+            SearchYouTubeCommand = new AsyncRelayCommand(async _ => await SearchYouTubeAsync());
+            
+            CancelSearchCommand = new RelayCommand(_ => CancelSearch(), _ => IsSearching);
+            AddYouTubeVideoCommand = new AsyncRelayCommand<YoutubeSearchResult>(async result => await AddYouTubeVideoAsync(result), result => result != null && SelectedGame != null);
         }
 
         public async Task LoadInitialDataAsync()
@@ -428,6 +507,145 @@ namespace RugbyApiApp.MAUI.ViewModels
             }
         }
 
+        private async Task SearchYouTubeAsync()
+        {
+            // Check preconditions
+            if (_youtubeService is null)
+            {
+                YouTubeStatusMessage = "❌ YouTube API key not configured. Please configure it in Settings.";
+                return;
+            }
+
+            if (SelectedGame == null)
+            {
+                YouTubeStatusMessage = "⚠️ No game selected. Please select a game first.";
+                return;
+            }
+
+            if (IsSearching)
+            {
+                YouTubeStatusMessage = "⏳ Search already in progress...";
+                return;
+            }
+
+            try
+            {
+                IsSearching = true;
+                YouTubeStatusMessage = "🔍 Searching YouTube...";
+                YouTubeSearchResults = new();
+
+                // Create a new cancellation token for this search
+                _searchCancellationTokenSource = new CancellationTokenSource();
+                var cancellationToken = _searchCancellationTokenSource.Token;
+
+                var season = SelectedSeasonId ?? DateTime.Now.Year;
+
+                // Parse duration filters
+                int? minDurationSeconds = null;
+                int? maxDurationSeconds = null;
+
+                if (!string.IsNullOrEmpty(YouTubeMinDuration) && int.TryParse(YouTubeMinDuration, out int minDuration))
+                {
+                    minDurationSeconds = minDuration * 60; // Convert minutes to seconds
+                }
+
+                if (!string.IsNullOrEmpty(YouTubeMaxDuration) && int.TryParse(YouTubeMaxDuration, out int maxDuration))
+                {
+                    maxDurationSeconds = maxDuration * 60; // Convert minutes to seconds
+                }
+
+                var results = await _youtubeService.SearchVideoAsync(
+                    SelectedGame.HomeTeamName ?? "Unknown",
+                    SelectedGame.AwayTeamName ?? "Unknown",
+                    season,
+                    maxResults: 25,
+                    definition: YouTubeSelectedDefinition,
+                    minDurationSeconds: minDurationSeconds,
+                    maxDurationSeconds: maxDurationSeconds
+                );
+
+                // Check if cancelled during the search
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    YouTubeStatusMessage = "🚫 Search cancelled.";
+                    YouTubeSearchResults = new();
+                    return;
+                }
+
+                YouTubeSearchResults = results;
+                if (results.Count == 0)
+                {
+                    YouTubeStatusMessage = "📭 No videos found. Try different filters or check the game name.";
+                }
+                else
+                {
+                    YouTubeStatusMessage = $"✅ Found {results.Count} videos. Click 'Add' to add them to the database.";
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                YouTubeStatusMessage = "🚫 Search was cancelled.";
+                YouTubeSearchResults = new();
+            }
+            catch (Exception ex)
+            {
+                YouTubeStatusMessage = $"❌ Error searching YouTube: {ex.Message}";
+            }
+            finally
+            {
+                IsSearching = false;
+                _searchCancellationTokenSource?.Dispose();
+                _searchCancellationTokenSource = null;
+            }
+        }
+
+        private void CancelSearch()
+        {
+            if (_searchCancellationTokenSource != null)
+            {
+                _searchCancellationTokenSource.Cancel();
+                YouTubeStatusMessage = "Cancelling search...";
+            }
+        }
+
+        private async Task AddYouTubeVideoAsync(YoutubeSearchResult? result)
+        {
+            if (result is null || SelectedGame == null)
+            {
+                YouTubeStatusMessage = "No video selected or game selected.";
+                return;
+            }
+
+            try
+            {
+                var video = new Video
+                {
+                    GameId = SelectedGame.GameId,
+                    Title = result.Title,
+                    Url = result.VideoUrl,
+                    Description = result.Description,
+                    Date = result.PublishedAt,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                await _dataService.AddVideoAsync(video);
+                YouTubeStatusMessage = $"✓ Added '{result.Title}' to the database";
+                
+                // Refresh the videos list for the current game
+                if (SelectedGame != null)
+                {
+                    var currentGame = SelectedGame;
+                    SelectedGame = null;
+                    SelectedGame = currentGame;
+                }
+            }
+            catch (Exception ex)
+            {
+                YouTubeStatusMessage = $"Error adding video: {ex.Message}";
+            }
+        }
+
         private void ClearFilters()
         {
             SelectedLeagueId = null;
@@ -437,6 +655,8 @@ namespace RugbyApiApp.MAUI.ViewModels
             SelectedGame = null;
             _currentPage = 1;
             PageSize = 20;
+            YouTubeSearchResults = new();
+            YouTubeStatusMessage = "";
             UpdateFilteredCollections();
         }
 

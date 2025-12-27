@@ -10,6 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="DataGridExtensions" Version="2.8.0" />
         <PackageReference Include="MahApps.Metro.IconPacks.Material" Version="6.2.1" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.1">
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -23,6 +24,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\RugbyApiApp\RugbyApiApp.csproj" />
+        <ProjectReference Include="..\RugbyApiApp.YouTubeService\RugbyApiApp.YouTubeService.csproj" />
     </ItemGroup>
 
 </Project>

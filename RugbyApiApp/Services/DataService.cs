@@ -4,7 +4,7 @@ using RugbyApiApp.Models;
 
 namespace RugbyApiApp.Services
 {
-    public class DataService
+    public partial class DataService
     {
         private readonly RugbyDbContext _context;
 
