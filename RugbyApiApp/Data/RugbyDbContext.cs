@@ -11,6 +11,7 @@ namespace RugbyApiApp.Data
         public DbSet<Season> Seasons { get; set; }
         public DbSet<Country> Countries { get; set; }
         public DbSet<Video> Videos { get; set; }
+        public DbSet<YouTubeVideoSearchResult> YouTubeVideoSearchResults { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -69,6 +70,36 @@ namespace RugbyApiApp.Data
             // Country configuration
             modelBuilder.Entity<Country>()
                 .HasKey(c => c.Id);
+
+            // YouTubeVideoSearchResult configuration
+            modelBuilder.Entity<YouTubeVideoSearchResult>()
+                .HasKey(y => y.Id);
+
+            modelBuilder.Entity<YouTubeVideoSearchResult>()
+                .Property(y => y.VideoId)
+                .IsRequired();
+
+            modelBuilder.Entity<YouTubeVideoSearchResult>()
+                .Property(y => y.Title)
+                .IsRequired();
+
+            modelBuilder.Entity<YouTubeVideoSearchResult>()
+                .Property(y => y.Description)
+                .IsRequired();
+
+            modelBuilder.Entity<YouTubeVideoSearchResult>()
+                .Property(y => y.ThumbnailUrl)
+                .IsRequired();
+
+            modelBuilder.Entity<YouTubeVideoSearchResult>()
+                .Property(y => y.ChannelTitle)
+                .IsRequired();
+
+            modelBuilder.Entity<YouTubeVideoSearchResult>()
+                .HasOne(y => y.Game)
+                .WithMany()
+                .HasForeignKey(y => y.GameId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
         /// <summary>

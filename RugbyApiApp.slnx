@@ -4,5 +4,6 @@
   </Folder>
   <Project Path="RugbyApiApp.Console/RugbyApiApp.Console.csproj" />
   <Project Path="RugbyApiApp.MAUI/RugbyApiApp.MAUI.csproj" />
+  <Project Path="RugbyApiApp.YouTubeService/RugbyApiApp.YouTubeService.csproj" Id="f324579c-b112-4aaf-8df8-9f96b8015817" />
   <Project Path="RugbyApiApp/RugbyApiApp.csproj" />
 </Solution>

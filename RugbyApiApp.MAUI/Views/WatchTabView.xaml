@@ -1,0 +1,476 @@
+<UserControl x:Class="RugbyApiApp.MAUI.Views.WatchTabView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:iconPacks="clr-namespace:MahApps.Metro.IconPacks;assembly=MahApps.Metro.IconPacks.Material"
+             xmlns:local="clr-namespace:RugbyApiApp.MAUI.Views"
+             xmlns:converters="clr-namespace:RugbyApiApp.MAUI.Converters">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Resources/SharedResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <converters:SubtractFixedWidthsConverter x:Key="SubtractFixedWidthsConverter"/>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid Margin="24">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="4*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Left Panel: Game List and Filters -->
+        <Grid x:Name="GridLeft" Grid.Column="0" VerticalAlignment="Stretch" Margin="0,0,12,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Filter Section -->
+            <Expander x:Name="FilterExpander" IsExpanded="False" FontWeight="Bold" Foreground="{StaticResource TextBrush}" Margin="0,0,0,10" Background="{StaticResource BorderBrush}">
+                <Expander.Header>
+                    <Grid Width="{Binding ActualWidth, ElementName=GridLeft}" Margin="0,0,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" Margin="5,5,0,12" VerticalAlignment="Bottom">
+                            <iconPacks:PackIconMaterial Kind="DatabaseSearchOutline" Width="16" Height="16" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Filters" Style="{StaticResource SubHeadingStyle}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <CheckBox Grid.Column="1" IsChecked="{Binding ShowFavoritesOnly}" Foreground="{StaticResource TextBrush}" Margin="0,0,0,12" VerticalAlignment="Bottom">
+                            <StackPanel Orientation="Horizontal">
+                                <iconPacks:PackIconMaterial Kind="Star" Width="14" Height="14" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Favorites Only" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </CheckBox>
+                    </Grid>
+                </Expander.Header>
+
+                <Border Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="16" Margin="12,0,12,16">
+                    <StackPanel>
+                        <TextBlock Text="League:" Style="{StaticResource TitleStyle}" Margin="0,0,0,4"/>
+                        <ComboBox ItemsSource="{Binding Leagues}" SelectedValuePath="Id" SelectedValue="{Binding SelectedLeagueId}" DisplayMemberPath="Name" Style="{StaticResource ModernComboBox}" Margin="0,0,0,12" Height="36"/>
+
+                        <TextBlock Text="Season:" Style="{StaticResource TitleStyle}" Margin="0,0,0,4"/>
+                        <ComboBox ItemsSource="{Binding Seasons}" SelectedValue="{Binding SelectedSeasonId}" Style="{StaticResource ModernComboBox}" Margin="0,0,0,12" Height="36"/>
+
+                        <TextBlock Text="Team:" Style="{StaticResource TitleStyle}" Margin="0,0,0,4"/>
+                        <ComboBox ItemsSource="{Binding Teams}" SelectedValuePath="Id" SelectedValue="{Binding SelectedTeamId}" DisplayMemberPath="Name" Style="{StaticResource ModernComboBox}" Margin="0,0,0,12" Height="36"/>
+
+                        <Button Command="{Binding ClearFiltersCommand}" Style="{StaticResource SecondaryButtonStyle}" Padding="12,8">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <iconPacks:PackIconMaterial Kind="Close" Width="14" Height="14" Margin="0,0,4,0"/>
+                                <TextBlock Text="Clear Filters" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Command="{Binding LoadDataCommand}" Style="{StaticResource PrimaryButtonStyle}" Padding="12,8" Margin="0,12,0,0">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <iconPacks:PackIconMaterial Kind="Refresh" Width="14" Height="14" Foreground="White" Margin="0,0,4,0"/>
+                                <TextBlock Text="Load Games" Foreground="White" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Border>
+            </Expander>
+
+            <!-- Games List -->
+            <Border Grid.Row="1" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="0" Margin="0,0,0,0">
+                <Grid Margin="12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                            <TextBlock Text="Games" Style="{StaticResource SubHeadingStyle}" Margin="0,0,0,12"/>
+                            <Grid Grid.Row="1">
+                                <ListBox  ItemsSource="{Binding FilteredGames}" SelectedItem="{Binding SelectedGame}" BorderThickness="0">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Padding="12" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                                                <StackPanel>
+                                                    <Border Background="{StaticResource BorderBrush}">
+                                                        <TextBlock Text="{Binding LeagueName}" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}" Margin="0,0,0,4" VerticalAlignment="Stretch"/>
+                                                    </Border>
+                                                    <TextBlock Text="{Binding HomeTeamName}" Margin="0,0,0,2"/>
+                                                    <TextBlock Text="vs"/>
+                                                    <TextBlock Text="{Binding AwayTeamName}" Margin="0,2,0,8"/>
+                                                    <TextBlock Text="{Binding Date, StringFormat=yyyy-MM-dd}" Style="{StaticResource BodyStyle}" Margin="0,0,0,4"/>
+                                                    <TextBlock Text="{Binding VideoStatus}" Style="{StaticResource BodyStyle}" Foreground="{StaticResource AccentBrush}"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </Grid>
+                    </Grid>
+
+                    <!-- Pagination Controls -->
+                    <Border Grid.Row="1" Background="#FAFAFA" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Padding="12">
+                        <StackPanel>
+                            <!-- Page Size Selection -->
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,12">
+                                <TextBlock Text="Items per page:" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold"/>
+                                <ComboBox ItemsSource="{Binding PageSizeOptions}" SelectedValue="{Binding PageSize}" Width="70" Height="28" Style="{StaticResource ModernComboBox}" Padding="8,4"/>
+                            </StackPanel>
+
+                            <!-- Navigation Controls -->
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button Command="{Binding FirstPageCommand}" Style="{StaticResource SecondaryButtonStyle}" Padding="10,6" FontSize="11" Margin="0,0,4,0">
+                                    <iconPacks:PackIconMaterial Kind="SkipPrevious" Width="12" Height="12"/>
+                                </Button>
+                                <Button Command="{Binding PreviousPageCommand}" Style="{StaticResource SecondaryButtonStyle}" Padding="10,6" FontSize="11" Margin="0,0,4,0">
+                                    <iconPacks:PackIconMaterial Kind="ChevronLeft" Width="12" Height="12"/>
+                                </Button>
+
+                                <Separator Width="1" Background="{StaticResource BorderBrush}" Margin="8,0"/>
+
+                                <TextBlock Text="Go to page:" VerticalAlignment="Center" Margin="8,0,4,0" FontWeight="SemiBold" FontSize="11"/>
+                                <ComboBox ItemsSource="{Binding PageNumbers}" SelectedValue="{Binding CurrentPage}" Width="60" Height="28" Style="{StaticResource ModernComboBox}" Padding="8,4" Margin="0,0,4,0"/>
+
+                                <Separator Width="1" Background="{StaticResource BorderBrush}" Margin="8,0"/>
+
+                                <Button Command="{Binding NextPageCommand}" Style="{StaticResource SecondaryButtonStyle}" Padding="10,6" FontSize="11" Margin="8,0,4,0">
+                                    <iconPacks:PackIconMaterial Kind="ChevronRight" Width="12" Height="12"/>
+                                </Button>
+                                <Button Command="{Binding LastPageCommand}" Style="{StaticResource SecondaryButtonStyle}" Padding="10,6" FontSize="11">
+                                    <iconPacks:PackIconMaterial Kind="SkipNext" Width="12" Height="12"/>
+                                </Button>
+
+                                <Separator Width="1" Background="{StaticResource BorderBrush}" Margin="8,0"/>
+
+                                <TextBlock VerticalAlignment="Center" Margin="8,0,0,0" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"><Run Text="{Binding CurrentPage, StringFormat=Page \{0\}}"/><Run Text=" of "/><Run Text="{Binding TotalPages}"/></TextBlock>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Status Message -->
+                    <Border Grid.Row="2" Background="#FAFAFA" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Padding="12">
+                        <TextBlock Text="{Binding StatusMessage}" Style="{StaticResource BodyStyle}"/>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Splitter -->
+        <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" Background="{StaticResource BorderBrush}"/>
+
+        <!-- Right Panel: Video List and Details -->
+        <Grid Grid.Column="2" MinWidth="300">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- YouTube Search Section -->
+            <Expander Grid.Row="0" x:Name="VideoDetailsExpander" IsExpanded="True" FontWeight="Bold" Foreground="{StaticResource TextBrush}" Margin="12,0,0,12" Background="{StaticResource BorderBrush}">
+                <Expander.Header>
+                    <Grid Width="{Binding ActualWidth, ElementName=VideoDetailsExpander}" Margin="0,5,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="5,5,0,12" VerticalAlignment="Bottom">
+                            <iconPacks:PackIconMaterial Kind="SearchWeb" Width="16" Height="16" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="YouTube" Style="{StaticResource SubHeadingStyle}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </Expander.Header>
+
+                <Border Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="16" Margin="12,0,12,16">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0">
+                            <Button Style="{StaticResource PrimaryButtonStyle}" Padding="5,3" Command="{Binding SearchYouTubeCommand}" Margin="20,8" Visibility="{Binding IsSearching, Converter={StaticResource InvertedBoolToVisibilityConverter}}">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <iconPacks:PackIconMaterial Kind="Magnify" Width="14" Height="14" Foreground="White" Margin="0,0,4,0"/>
+                                    <TextBlock Text="Search" Foreground="White" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Style="{StaticResource DangerButtonStyle}" Padding="5,3" Command="{Binding CancelSearchCommand}" Margin="20,8" Visibility="{Binding IsSearching, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <iconPacks:PackIconMaterial Kind="Close" Width="14" Height="14" Foreground="White" Margin="0,0,4,0"/>
+                                    <TextBlock Text="Cancel" Foreground="White" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+
+                        <!-- YouTube Search Filters -->
+                        <StackPanel Grid.Row="1" Margin="0,12,0,12">
+                            <TextBlock Text="Search Filters (Optional)" Style="{StaticResource TitleStyle}" Margin="0,0,0,8" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <!-- Duration Filter -->
+                                <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                    <TextBlock Text="Duration (minutes)" FontSize="11" Margin="0,0,0,4" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox Grid.Column="0" Height="28" Text="{Binding YouTubeMinDuration, UpdateSourceTrigger=PropertyChanged}" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="6,4" FontSize="11"/>
+                                        <TextBlock Grid.Column="1" Text="-" VerticalAlignment="Center" Margin="4,0" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                        <TextBox Grid.Column="2" Height="28" Text="{Binding YouTubeMaxDuration, UpdateSourceTrigger=PropertyChanged}" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="6,4" FontSize="11"/>
+                                    </Grid>
+                                </StackPanel>
+
+                                <!-- Definition Filter -->
+                                <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                                    <TextBlock Text="Definition" FontSize="11" Margin="0,0,0,4" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <ComboBox ItemsSource="{Binding YouTubeDefinitionOptions}" SelectedValue="{Binding YouTubeSelectedDefinition}" Height="28" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="6,4" FontSize="11"/>
+                                </StackPanel>
+
+                                <!-- League Filter -->
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="League" FontSize="11" Margin="0,0,0,4" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <ComboBox ItemsSource="{Binding YouTubeLeagueOptions}" SelectedValue="{Binding YouTubeSelectedLeague}" Height="28" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="6,4" FontSize="11"/>
+                                </StackPanel>
+                            </Grid>
+                            <TextBlock Grid.Row="1" Text="{Binding YouTubeStatusMessage}" Margin="0,12,0,12" TextWrapping="Wrap"
+                                       Background="{StaticResource BackgroundBrush}" 
+                                       Style="{StaticResource BodyStyle}" Foreground="{StaticResource TextBrush}"/>
+                        </StackPanel>
+
+                        <!-- Loading State -->
+                        <Grid Grid.Row="1" Grid.RowSpan="2" Background="White" Visibility="{Binding IsSearching, Converter={StaticResource BoolToVisibilityConverter}}" Opacity="0.95">
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <ProgressBar Width="200" Height="4" IsIndeterminate="True" Margin="0,0,0,16" Background="{StaticResource BorderBrush}" Foreground="{StaticResource AccentBrush}"/>
+                                <TextBlock Text="Searching YouTube..." Style="{StaticResource TitleStyle}" TextAlignment="Center" Margin="0,0,0,8"/>
+                                <TextBlock Text="{Binding YouTubeStatusMessage}" Style="{StaticResource BodyStyle}" TextAlignment="Center" Margin="0,0,0,16"/>
+                                <Button Style="{StaticResource DangerButtonStyle}" Command="{Binding CancelSearchCommand}" Padding="12,8" HorizontalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <iconPacks:PackIconMaterial Kind="Close" Width="14" Height="14" Foreground="White" Margin="0,0,4,0"/>
+                                        <TextBlock Text="Cancel Search" Foreground="White" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+
+                        
+                        <!-- Results -->
+                        <ListBox Grid.Row="2" x:Name="YouTubeSearchResultsListBox" ItemsSource="{Binding YouTubeSearchResults}" BorderThickness="0" HorizontalContentAlignment="Stretch">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid HorizontalAlignment="Stretch">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition Width="150"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="100"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Button Grid.Column="0" Style="{StaticResource PrimaryButtonStyle}" Padding="6" Height="90" Width="90" Margin="5" 
+                                                    Command="{Binding DataContext.AddYouTubeVideoCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" CommandParameter="{Binding}">
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                    <iconPacks:PackIconMaterial Kind="Plus" Width="14" Height="14" Foreground="White" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="Add" Foreground="White" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                            </Button>
+
+                                            <Image Grid.Column="1" Source="{Binding ThumbnailUrl}" Width="150" Height="90" Margin="10"/>
+
+                                            <Grid Grid.Column="2" HorizontalAlignment="Stretch" MinWidth="300">
+                                                <Grid.Width>
+                                                    <MultiBinding Converter="{StaticResource SubtractFixedWidthsConverter}">
+                                                        <Binding Path="ActualWidth" ElementName="YouTubeSearchResultsListBox"/>
+                                                    </MultiBinding>
+                                                </Grid.Width>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition/>
+                                                    <RowDefinition/>
+                                                    <RowDefinition/>
+                                                    <RowDefinition/>
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Grid.ColumnSpan="3" Grid.Row="0" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" 
+                                                           Margin="4,4,4,8" HorizontalAlignment="Stretch">
+                                                    <Hyperlink NavigateUri="{Binding VideoUrl}" RequestNavigate="Hyperlink_RequestNavigate">
+                                                        <Run Text="{Binding Title, Mode=OneWay}" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold"/>
+                                                    </Hyperlink>
+                                                </TextBlock>
+                                                <TextBlock Grid.Column="0" Grid.Row="1" Text="{Binding FormattedViewCount, StringFormat=Views: \{0\}}" TextWrapping="Wrap" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" Margin="0,4,0,8"/>
+                                                <TextBlock Grid.Column="0" Grid.Row="2" Text="{Binding FormattedLikeCount, StringFormat=Likes: \{0\}}" TextWrapping="Wrap" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" Margin="0,4,0,8"/>
+                                                <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding PublishedAt, StringFormat=Published: \{0:MM-dd-yyyy\}}" TextWrapping="Wrap" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" Margin="0,4,0,8"/>
+                                                <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding ChannelTitle, StringFormat=Channel: \{0\}}" TextWrapping="Wrap" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" Margin="0,4,0,8"/>
+                                                <TextBlock Grid.Column="2" Grid.Row="1" Text="{Binding FormattedDuration, StringFormat=Duration: \{0:HH-mm-ss\}}" TextWrapping="Wrap" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" Margin="0,4,0,8"/>
+                                                <TextBlock Grid.Column="2" Grid.Row="2" Text="{Binding FormattedDefinition, StringFormat=Definition: \{0:HH-mm-ss\}}" TextWrapping="Wrap" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" Margin="0,4,0,8"/>
+                                            </Grid>
+
+                                            <Button Grid.Column="3" Style="{StaticResource DangerButtonStyle}" Padding="6" Height="90" Width="90" Margin="5"
+                                                    Command="{Binding DataContext.IgnoreYouTubeVideoCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" CommandParameter="{Binding}">
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                    <iconPacks:PackIconMaterial Kind="EyeOff" Width="14" Height="14" Foreground="White" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="Ignore" Foreground="White" VerticalAlignment="Center" Margin="0,0,0,0"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </Grid>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </Border>
+            </Expander>
+
+            <GridSplitter Grid.Row="1" Height="4" HorizontalAlignment="Stretch" Background="{StaticResource BorderBrush}" Margin="12,0,0,0"/>
+
+            <!-- Videos List -->
+            <Border Grid.Row="2" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="0" Margin="12,12,0,0">
+                <DataGrid ItemsSource="{Binding SelectedGameVideos}" AutoGenerateColumns="False" Style="{StaticResource ModernDataGrid}">
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Width="40">
+                            <DataGridTemplateColumn.Header>
+                                <Grid HorizontalAlignment="Center">
+                                    <iconPacks:PackIconMaterial Kind="Eye" Width="16" Height="16" HorizontalAlignment="Center"/>
+                                </Grid>
+                            </DataGridTemplateColumn.Header>
+
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IsWatched}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                            <DataGridTemplateColumn.CellEditingTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IsWatched}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellEditingTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Width="40">
+                            <DataGridTemplateColumn.Header>
+                                <Grid HorizontalAlignment="Center">
+                                    <iconPacks:PackIconMaterial Kind="Star" Width="16" Height="16" HorizontalAlignment="Center"/>
+                                </Grid>
+                            </DataGridTemplateColumn.Header>
+
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IsFavorite}" HorizontalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                            <DataGridTemplateColumn.CellEditingTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IsFavorite}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellEditingTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTextColumn Header="Title" Binding="{Binding Title}" IsReadOnly="True" Width="200"/>
+                        <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=yyyy-MM-dd}" IsReadOnly="True" Width="80"/>
+                        <DataGridTextColumn Header="Duration" Binding="{Binding LengthSeconds}" IsReadOnly="True" Width="70"/>
+                        <DataGridTemplateColumn Header="Rating" Width="140">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <Button Background="Transparent" BorderThickness="0" Padding="3" ToolTip="Rate 1 star" Click="RatingStar_Click" Tag="1">
+                                            <Button.Foreground>
+                                                <MultiBinding Converter="{StaticResource RatingStarColorConverter}">
+                                                    <Binding Path="Rating" />
+                                                    <Binding Source="1" />
+                                                </MultiBinding>
+                                            </Button.Foreground>
+                                            <iconPacks:PackIconMaterial Kind="Star" Width="18" Height="18" Margin="0,0,1,0"/>
+                                        </Button>
+                                        <Button Background="Transparent" BorderThickness="0" Padding="3" ToolTip="Rate 2 stars" Click="RatingStar_Click" Tag="2">
+                                            <Button.Foreground>
+                                                <MultiBinding Converter="{StaticResource RatingStarColorConverter}">
+                                                    <Binding Path="Rating" />
+                                                    <Binding Source="2" />
+                                                </MultiBinding>
+                                            </Button.Foreground>
+                                            <iconPacks:PackIconMaterial Kind="Star" Width="18" Height="18" Margin="0,0,1,0"/>
+                                        </Button>
+                                        <Button Background="Transparent" BorderThickness="0" Padding="3" ToolTip="Rate 3 stars" Click="RatingStar_Click" Tag="3">
+                                            <Button.Foreground>
+                                                <MultiBinding Converter="{StaticResource RatingStarColorConverter}">
+                                                    <Binding Path="Rating" />
+                                                    <Binding Source="3" />
+                                                </MultiBinding>
+                                            </Button.Foreground>
+                                            <iconPacks:PackIconMaterial Kind="Star" Width="18" Height="18" Margin="0,0,1,0"/>
+                                        </Button>
+                                        <Button Background="Transparent" BorderThickness="0" Padding="3" ToolTip="Rate 4 stars" Click="RatingStar_Click" Tag="4">
+                                            <Button.Foreground>
+                                                <MultiBinding Converter="{StaticResource RatingStarColorConverter}">
+                                                    <Binding Path="Rating" />
+                                                    <Binding Source="4" />
+                                                </MultiBinding>
+                                            </Button.Foreground>
+                                            <iconPacks:PackIconMaterial Kind="Star" Width="18" Height="18" Margin="0,0,1,0"/>
+                                        </Button>
+                                        <Button Background="Transparent" BorderThickness="0" Padding="3" ToolTip="Rate 5 stars" Click="RatingStar_Click" Tag="5">
+                                            <Button.Foreground>
+                                                <MultiBinding Converter="{StaticResource RatingStarColorConverter}">
+                                                    <Binding Path="Rating" />
+                                                    <Binding Source="5" />
+                                                </MultiBinding>
+                                            </Button.Foreground>
+                                            <iconPacks:PackIconMaterial Kind="Star" Width="18" Height="18" Margin="0,0,1,0"/>
+                                        </Button>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+
+            <!-- CRUD Buttons -->
+            <Border Grid.Row="3" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="16" Margin="12,12,0,16">
+                <StackPanel>
+                    <TextBlock Text="Video Details" Style="{StaticResource SubHeadingStyle}" Margin="0,0,0,12"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Style="{StaticResource PrimaryButtonStyle}" Padding="12,8" Margin="5,0,5,12" Command="{Binding AddVideoCommand}">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <iconPacks:PackIconMaterial Kind="Plus" Width="14" Height="14" Foreground="White" Margin="0,0,4,0"/>
+                                <TextBlock Text="Add Video" Foreground="White" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource SecondaryButtonStyle}" Padding="12,8" Margin="5,0,5,12" Command="{Binding EditVideoCommand}">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <iconPacks:PackIconMaterial Kind="Pencil" Width="14" Height="14" Margin="0,0,4,0"/>
+                                <TextBlock Text="Edit Video" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource DangerButtonStyle}" Padding="12,8" Margin="5,0,5,12" Command="{Binding DeleteVideoCommand}">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <iconPacks:PackIconMaterial Kind="TrashCan" Width="14" Height="14" Foreground="White" Margin="0,0,4,0"/>
+                                <TextBlock Text="Delete Video" Foreground="White" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

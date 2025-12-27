@@ -17,6 +17,43 @@ namespace RugbyApiApp.MAUI.ViewModels
         private bool _isLoading;
         private string _statusMessage = "";
 
+        // Separate data collections for each data type
+        private List<CountryGridItem> _countriesData = new();
+        private List<SeasonGridItem> _seasonsData = new();
+        private List<LeagueGridItem> _leaguesData = new();
+        private List<TeamGridItem> _teamsData = new();
+        private List<GameGridItem> _gamesData = new();
+
+        public List<CountryGridItem> CountriesData
+        {
+            get => _countriesData;
+            set => SetProperty(ref _countriesData, value);
+        }
+
+        public List<SeasonGridItem> SeasonsData
+        {
+            get => _seasonsData;
+            set => SetProperty(ref _seasonsData, value);
+        }
+
+        public List<LeagueGridItem> LeaguesData
+        {
+            get => _leaguesData;
+            set => SetProperty(ref _leaguesData, value);
+        }
+
+        public List<TeamGridItem> TeamsData
+        {
+            get => _teamsData;
+            set => SetProperty(ref _teamsData, value);
+        }
+
+        public List<GameGridItem> GamesData
+        {
+            get => _gamesData;
+            set => SetProperty(ref _gamesData, value);
+        }
+
         public string? SelectedDataType
         {
             get => _selectedDataType;
@@ -24,6 +61,7 @@ namespace RugbyApiApp.MAUI.ViewModels
             {
                 if (SetProperty(ref _selectedDataType, value))
                 {
+                    UpdateVisibility();
                     _ = LoadDataByTypeAsync();
                 }
             }
@@ -59,6 +97,72 @@ namespace RugbyApiApp.MAUI.ViewModels
         public ICommand FetchGamesCommand { get; }
         public ICommand ToggleFavoriteCommand { get; }
 
+        private string _searchText = "";
+        private bool _showFavoritesOnly;
+
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                if (SetProperty(ref _searchText, value))
+                {
+                    _ = FilterDataAsync();
+                }
+            }
+        }
+
+        public bool ShowFavoritesOnly
+        {
+            get => _showFavoritesOnly;
+            set
+            {
+                if (SetProperty(ref _showFavoritesOnly, value))
+                {
+                    _ = FilterDataAsync();
+                }
+            }
+        }
+
+        private bool _isCountriesVisible = true;
+        private bool _isSeasonsVisible;
+        private bool _isLeaguesVisible;
+        private bool _isTeamsVisible;
+        private bool _isGamesVisible;
+
+        public bool IsCountriesVisible 
+        { 
+            get => _isCountriesVisible;
+            set => SetProperty(ref _isCountriesVisible, value);
+        }
+        public bool IsSeasonsVisible 
+        { 
+            get => _isSeasonsVisible;
+            set => SetProperty(ref _isSeasonsVisible, value);
+        }
+        public bool IsLeaguesVisible 
+        { 
+            get => _isLeaguesVisible;
+            set => SetProperty(ref _isLeaguesVisible, value);
+        }
+        public bool IsTeamsVisible 
+        { 
+            get => _isTeamsVisible;
+            set => SetProperty(ref _isTeamsVisible, value);
+        }
+        public bool IsGamesVisible 
+        { 
+            get => _isGamesVisible;
+            set => SetProperty(ref _isGamesVisible, value);
+        }
+
+        private List<string> _dataTypes = new() { "Countries", "Seasons", "Leagues", "Teams", "Games" };
+        public List<string> DataTypes
+        {
+            get => _dataTypes;
+            set => SetProperty(ref _dataTypes, value);
+        }
+
         public DataViewModel(DataService dataService, RugbyApiClient? apiClient = null)
         {
             _dataService = dataService;
@@ -80,6 +184,40 @@ namespace RugbyApiApp.MAUI.ViewModels
         public void SetApiClient(RugbyApiClient? apiClient)
         {
             _apiClient = apiClient;
+        }
+
+        private void UpdateVisibility()
+        {
+            IsCountriesVisible = false;
+            IsSeasonsVisible = false;
+            IsLeaguesVisible = false;
+            IsTeamsVisible = false;
+            IsGamesVisible = false;
+
+            switch (SelectedDataType)
+            {
+                case "Countries":
+                    IsCountriesVisible = true;
+                    break;
+                case "Seasons":
+                    IsSeasonsVisible = true;
+                    break;
+                case "Leagues":
+                    IsLeaguesVisible = true;
+                    break;
+                case "Teams":
+                    IsTeamsVisible = true;
+                    break;
+                case "Games":
+                    IsGamesVisible = true;
+                    break;
+            }
+
+            OnPropertyChanged(nameof(IsCountriesVisible));
+            OnPropertyChanged(nameof(IsSeasonsVisible));
+            OnPropertyChanged(nameof(IsLeaguesVisible));
+            OnPropertyChanged(nameof(IsTeamsVisible));
+            OnPropertyChanged(nameof(IsGamesVisible));
         }
 
         private async Task LoadDataByTypeAsync()
@@ -111,7 +249,7 @@ namespace RugbyApiApp.MAUI.ViewModels
             try
             {
                 var countries = await _dataService.GetCountriesAsync();
-                GridData = countries.Select(c => new GridDataItem
+                CountriesData = countries.Select(c => new CountryGridItem
                 {
                     Name = c.Name,
                     Code = c.Code,
@@ -130,7 +268,7 @@ namespace RugbyApiApp.MAUI.ViewModels
             try
             {
                 var seasons = await _dataService.GetSeasonsAsync();
-                GridData = seasons.Select(s => new GridDataItem
+                SeasonsData = seasons.Select(s => new SeasonGridItem
                 {
                     Year = s.Year,
                     Current = s.IsCurrent ? "Yes" : "No",
@@ -149,7 +287,7 @@ namespace RugbyApiApp.MAUI.ViewModels
             try
             {
                 var leagues = await _dataService.GetLeaguesAsync();
-                GridData = leagues.Select(l => new GridDataItem
+                LeaguesData = leagues.Select(l => new LeagueGridItem
                 {
                     Id = l.Id,
                     Name = l.Name,
@@ -170,7 +308,7 @@ namespace RugbyApiApp.MAUI.ViewModels
             try
             {
                 var teams = await _dataService.GetTeamsAsync();
-                GridData = teams.Select(t => new GridDataItem
+                TeamsData = teams.Select(t => new TeamGridItem
                 {
                     Id = t.Id,
                     Name = t.Name,
@@ -191,7 +329,7 @@ namespace RugbyApiApp.MAUI.ViewModels
             try
             {
                 var games = await _dataService.GetGamesAsync();
-                GridData = games.Select(g => new GridDataItem
+                GamesData = games.Select(g => new GameGridItem
                 {
                     Home = g.HomeTeam?.Name ?? "Unknown",
                     Away = g.AwayTeam?.Name ?? "Unknown",
@@ -436,20 +574,163 @@ namespace RugbyApiApp.MAUI.ViewModels
                 if (SelectedDataType == "Teams")
                 {
                     await _dataService.ToggleTeamFavoriteAsync(id);
-                    StatusMessage = "Team favorite status updated";
-                    await LoadTeamsAsync();
+                    
+                    var item = TeamsData.FirstOrDefault(t => t.Id == id);
+                    if (item != null)
+                    {
+                        item.Favorite = !item.Favorite;
+                        
+                        if (ShowFavoritesOnly && !item.Favorite)
+                        {
+                            TeamsData.Remove(item);
+                        }
+                    }
+                    
+                    StatusMessage = "✅ Team favorite toggled";
                 }
                 else if (SelectedDataType == "Leagues")
                 {
                     await _dataService.ToggleLeagueFavoriteAsync(id);
-                    StatusMessage = "League favorite status updated";
-                    await LoadLeaguesAsync();
+                    
+                    var item = LeaguesData.FirstOrDefault(l => l.Id == id);
+                    if (item != null)
+                    {
+                        item.Favorite = !item.Favorite;
+                        
+                        if (ShowFavoritesOnly && !item.Favorite)
+                        {
+                            LeaguesData.Remove(item);
+                        }
+                    }
+                    
+                    StatusMessage = "✅ League favorite toggled";
                 }
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Error updating favorite: {ex.Message}";
+                StatusMessage = $"❌ Error: {ex.Message}";
             }
         }
+
+        private async Task FilterDataAsync()
+        {
+            if (string.IsNullOrEmpty(SelectedDataType))
+                return;
+
+            IsLoading = true;
+            try
+            {
+                if (SelectedDataType == "Countries")
+                {
+                    var countries = await _dataService.GetCountriesAsync();
+                    CountriesData = countries
+                        .Where(c => c.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase) || c.Code.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+                        .Select(c => new CountryGridItem
+                        {
+                            Name = c.Name,
+                            Code = c.Code,
+                            Status = c.IsDataComplete ? "✓ Complete" : "⚠ Incomplete"
+                        }).ToList();
+                }
+                else if (SelectedDataType == "Seasons")
+                {
+                    var seasons = await _dataService.GetSeasonsAsync();
+                    SeasonsData = seasons
+                        .Where(s => s.Year.ToString().Contains(SearchText))
+                        .Select(s => new SeasonGridItem
+                        {
+                            Year = s.Year,
+                            Current = s.IsCurrent ? "Yes" : "No",
+                            Status = s.IsDataComplete ? "✓ Complete" : "⚠ Incomplete"
+                        }).ToList();
+                }
+                else if (SelectedDataType == "Leagues")
+                {
+                    var leagues = await _dataService.GetLeaguesAsync();
+                    LeaguesData = leagues
+                        .Where(l => (l.Name?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false) || 
+                                    (l.CountryCode?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false))
+                        .Where(l => !ShowFavoritesOnly || l.IsFavorite)
+                        .Select(g => new LeagueGridItem
+                        {
+                            Id = g.Id,
+                            Name = g.Name,
+                            Country = g.CountryCode,
+                            Type = g.Type,
+                            Favorite = g.IsFavorite
+                        }).ToList();
+                }
+                else if (SelectedDataType == "Teams")
+                {
+                    var teams = await _dataService.GetTeamsAsync();
+                    TeamsData = teams
+                        .Where(t => (t.Name?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false) || 
+                                    (t.Code?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false))
+                        .Where(t => !ShowFavoritesOnly || t.IsFavorite)
+                        .Select(t => new TeamGridItem
+                        {
+                            Id = t.Id,
+                            Name = t.Name,
+                            Code = t.Code,
+                            Status = t.IsDataComplete ? "✓ Complete" : "⚠ Incomplete",
+                            Favorite = t.IsFavorite
+                        }).ToList();
+                }
+                else if (SelectedDataType == "Games")
+                {
+                    var games = await _dataService.GetGamesAsync();
+                    GamesData = games
+                        .Where(g => (g.HomeTeam?.Name ?? "").Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                                    (g.AwayTeam?.Name ?? "").Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                                    (g.Venue ?? "").Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+                        .Select(g => new GameGridItem
+                        {
+                            Home = g.HomeTeam?.Name ?? "Unknown",
+                            Away = g.AwayTeam?.Name ?? "Unknown",
+                            Date = g.Date?.ToString("yyyy-MM-dd") ?? "TBD",
+                            Venue = g.Venue ?? "TBD"
+                        }).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Error filtering data: {ex.Message}";
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Grid item for Countries
+    /// </summary>
+    public class CountryGridItem
+    {
+        public string? Name { get; set; }
+        public string? Code { get; set; }
+        public string? Status { get; set; }
+    }
+
+    /// <summary>
+    /// Grid item for Seasons
+    /// </summary>
+    public class SeasonGridItem
+    {
+        public int? Year { get; set; }
+        public string? Current { get; set; }
+        public string? Status { get; set; }
+    }
+
+    /// <summary>
+    /// Grid item for Games
+    /// </summary>
+    public class GameGridItem
+    {
+        public string? Home { get; set; }
+        public string? Away { get; set; }
+        public string? Date { get; set; }
+        public string? Venue { get; set; }
     }
 }

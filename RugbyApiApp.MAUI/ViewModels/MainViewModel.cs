@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using RugbyApiApp.Data;
 using RugbyApiApp.Services;
+using RugbyApiApp.YouTubeApi;
+using RugbyApiApp.MAUI.Services;
 
 namespace RugbyApiApp.MAUI.ViewModels
 {
@@ -32,11 +34,27 @@ namespace RugbyApiApp.MAUI.ViewModels
                 _apiClient = new RugbyApiClient(apiKey);
             }
 
+            // Initialize YouTube service
+            YoutubeVideoService? youtubeService = null;
+            try
+            {
+                youtubeService = new YoutubeVideoService(configuration);
+            }
+            catch (ArgumentException argEx)
+            {
+                System.Diagnostics.Debug.WriteLine($"⚠️ YouTube service initialization: {argEx.Message}");
+                System.Diagnostics.Debug.WriteLine("   YouTube search will be unavailable until YouTubeApiKey is configured.");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ YouTube service initialization failed: {ex.Message}");
+            }
+
             // Create child ViewModels
             HomeViewModel = new HomeViewModel(dataService);
             DataViewModel = new DataViewModel(dataService, _apiClient);
             SettingsViewModel = new SettingsViewModel(dataService, secretsService, configuration);
-            WatchViewModel = new WatchViewModel(dataService);
+            WatchViewModel = new WatchViewModel(dataService, new VideoWindowService(), youtubeService);
             SettingsViewModel.SetApiClient(_apiClient);
         }
 
